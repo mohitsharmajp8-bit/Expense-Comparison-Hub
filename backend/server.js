@@ -13,7 +13,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_this';
 
-// Initialize the Grok client (xAI)
+// Initialize the Grok client (xAI) – will fallback if no API key
 const grokClient = new OpenAI({
   apiKey: process.env.XAI_API_KEY,
   baseURL: "https://api.x.ai/v1",
@@ -29,7 +29,7 @@ const pool = mysql.createPool({
   connectionLimit: 10,
 });
 
-// Test MySQL connection & create users table
+// Test MySQL connection & create users table (non‑blocking)
 (async () => {
   try {
     const connection = await pool.getConnection();
@@ -48,6 +48,7 @@ const pool = mysql.createPool({
     console.log('✅ Users table ready');
   } catch (err) {
     console.error('❌ MySQL connection error:', err.message);
+    console.log('⚠️  The server will continue, but database features will not work until you fix the connection.');
   }
 })();
 
@@ -137,6 +138,7 @@ Give a short, actionable buying advice (1-2 sentences). Mention if it's a good d
     res.json({ advice });
   } catch (error) {
     console.error('Grok advice error:', error.message);
+    // Fallback rule-based
     const belowAvg = price < avgPrice * 0.95;
     let advice = "";
     if (discount > 30) advice = `🔥 Great deal! ${discount.toFixed(0)}% off – buy now.`;
@@ -246,9 +248,7 @@ app.post('/api/semantic-search', async (req, res) => {
   res.json({ results: [] });
 });
 
-// ========== START SERVER (network accessible) ==========
+// ========== START SERVER (production‑ready) ==========
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on port ${PORT} and accessible on your local network`);
-  console.log(`   - Local:   http://localhost:${PORT}`);
-  console.log(`   - Network: http://<your-ip>:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
