@@ -52,6 +52,11 @@ const pool = mysql.createPool({
   }
 })();
 
+// ========== HEALTH CHECK (for debugging) ==========
+app.get('/ping', (req, res) => {
+  res.json({ status: 'alive', time: new Date().toISOString() });
+});
+
 // ========== AUTHENTICATION ENDPOINTS ==========
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -126,7 +131,7 @@ Give a short, actionable buying advice (1-2 sentences). Mention if it's a good d
 
   try {
     const completion = await grokClient.chat.completions.create({
-      model: "grok-beta",
+      model: "grok-2-latest",   // ✅ fixed model name
       messages: [
         { role: "system", content: "You are a helpful shopping advisor." },
         { role: "user", content: prompt }
@@ -220,7 +225,7 @@ Return only a JSON array of 4 product names, e.g. ["iPhone 15 Pro Max", "Samsung
 
   try {
     const completion = await grokClient.chat.completions.create({
-      model: "grok-beta",
+      model: "grok-2-latest",   // ✅ fixed model name
       messages: [
         { role: "system", content: "You are a recommendation engine. Return only valid JSON." },
         { role: "user", content: prompt }
