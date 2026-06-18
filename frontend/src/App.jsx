@@ -25,8 +25,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Bar, Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+} from 'chart.js';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -48,7 +56,7 @@ const bikeIcon = L.divIcon({
   popupAnchor: [0, -18],
 });
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 // ============================================================
 // GLOBAL CSS (original – unchanged)
@@ -257,6 +265,26 @@ body.dark .section-title{ background:linear-gradient(135deg,#fff,#ff8fa3); -webk
 
 .price-analysis-card{ background:#fff; border-radius:16px; margin-bottom:16px; border:1px solid #e8e8e8; }
 .price-analysis-header{ display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:linear-gradient(135deg,#f8f9fa,#fff); border-bottom:1px solid #e8e8e8; }
+.category-comparison-card{ margin:20px; padding:20px; }
+.category-comparison-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+.category-comparison-title{ display:flex; align-items:center; gap:8px; font-size:20px; font-weight:900; color:#111827; }
+body.dark .category-comparison-title{ color:#f5f7ff; }
+.category-comparison-subtitle{ color:#6b7280; font-size:13px; margin-top:6px; }
+.comparison-totals{ display:grid; grid-template-columns:repeat(2,minmax(120px,1fr)); gap:10px; min-width:260px; }
+.comparison-total{ background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
+body.dark .comparison-total{ background:#1f2435; border-color:#29304b; }
+.comparison-label{ color:#6b7280; font-size:12px; font-weight:700; margin-bottom:4px; }
+.comparison-value{ color:#111827; font-size:20px; font-weight:900; }
+body.dark .comparison-value{ color:#f5f7ff; }
+.category-comparison-chart{ height:320px; }
+.category-breakdown-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:16px; }
+.category-breakdown-item{ background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
+body.dark .category-breakdown-item{ background:#1f2435; border-color:#29304b; }
+.category-breakdown-name{ font-weight:800; margin-bottom:8px; color:#111827; }
+body.dark .category-breakdown-name{ color:#f5f7ff; }
+.category-breakdown-line{ display:flex; justify-content:space-between; gap:8px; color:#6b7280; font-size:13px; margin-top:4px; }
+.category-breakdown-line strong{ color:#111827; }
+body.dark .category-breakdown-line strong{ color:#f5f7ff; }
 .rec-card{ background:linear-gradient(135deg,#ff3859,#ff6b6b); color:white; padding:12px 16px; border-radius:12px; margin:12px; }
 .rec-title{ font-size:12px; opacity:0.9; margin-bottom:4px; }
 .rec-text{ font-size:16px; font-weight:800; margin-bottom:4px; }
@@ -402,6 +430,29 @@ const AppContext = createContext();
 function useApp() { return useContext(AppContext); }
 const AuthContext = createContext();
 function useAuth() { return useContext(AuthContext); }
+
+const readStorage = (key, fallback) => {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    console.warn(`Resetting invalid localStorage value for ${key}`, error);
+    localStorage.removeItem(key);
+    return fallback;
+  }
+};
+
+const writeStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Unable to save ${key} to localStorage`, error);
+  }
+};
+
+const getItemQty = item => Math.max(1, Number(item?.qty) || Number(item?.quantity) || 1);
+const getItemPrice = item => Math.max(0, Number(item?.price) || 0);
+const getItemOldPrice = item => Math.max(getItemPrice(item), Number(item?.oldPrice) || getItemPrice(item));
 
 /* ============================================================
    PLATFORM CONFIG
@@ -894,14 +945,13 @@ function PriceIntelligence({ product }) {
 }
 
 function usePersonalization() {
-  const [userPreferences, setUserPreferences] = useState(() => {
-    const saved = localStorage.getItem('bm_preferences');
-    return saved ? JSON.parse(saved) : { categories: [], priceRange: [0, 100000], brands: [] };
-  });
+  const [userPreferences, setUserPreferences] = useState(() =>
+    readStorage('bm_preferences', { categories: [], priceRange: [0, 100000], brands: [] })
+  );
   const trackInteraction = (product) => {
     const updated = { ...userPreferences };
     if (!updated.categories.includes(product.category)) updated.categories.push(product.category);
-    localStorage.setItem('bm_preferences', JSON.stringify(updated));
+    writeStorage('bm_preferences', updated);
     setUserPreferences(updated);
   };
   return { userPreferences, trackInteraction };
@@ -930,21 +980,141 @@ function PersonalizedRecommendations() {
 
 function AnalyticsDashboard() {
   const { cart } = useApp();
-  const [spendingData, setSpendingData] = useState({ labels: [], datasets: [] });
-  useEffect(() => {
-    const categorySpend = {};
-    cart.forEach(item => { categorySpend[item.category] = (categorySpend[item.category] || 0) + item.price * item.qty; });
-    setSpendingData({
-      labels: Object.keys(categorySpend),
-      datasets: [{ data: Object.values(categorySpend), backgroundColor: ['#ff3859', '#ff9800', '#4caf50', '#2196f3'] }]
-    });
-  }, [cart]);
   if (cart.length === 0) return null;
+
+  const categoryTotals = cart.reduce((totals, item) => {
+    const category = item.category || 'Other';
+    const qty = getItemQty(item);
+    const spending = getItemPrice(item) * qty;
+    const saving = Math.max(getItemOldPrice(item) - getItemPrice(item), 0) * qty;
+
+    if (!totals[category]) {
+      totals[category] = { spending: 0, saving: 0, items: 0 };
+    }
+
+    totals[category].spending += spending;
+    totals[category].saving += saving;
+    totals[category].items += qty;
+    return totals;
+  }, {});
+
+  const comparisonRows = Object.entries(categoryTotals)
+    .map(([category, totals]) => ({ category, ...totals }))
+    .sort((a, b) => b.spending + b.saving - (a.spending + a.saving));
+
+  const labels = comparisonRows.map(row => row.category);
+  const totalSpending = comparisonRows.reduce((sum, row) => sum + row.spending, 0);
+  const totalSaving = comparisonRows.reduce((sum, row) => sum + row.saving, 0);
+
+  const spendingData = {
+    labels,
+    datasets: [
+      {
+        data: comparisonRows.map(row => row.spending),
+        backgroundColor: ['#ff3859', '#ff9800', '#4caf50', '#2196f3', '#8b5cf6', '#14b8a6', '#f59e0b', '#64748b'],
+        borderWidth: 0
+      }
+    ]
+  };
+
+  const comparisonData = {
+    labels,
+    datasets: [
+      {
+        label: 'Spending',
+        data: comparisonRows.map(row => row.spending),
+        backgroundColor: '#ff3859',
+        borderRadius: 8,
+        barThickness: 28
+      },
+      {
+        label: 'Saving',
+        data: comparisonRows.map(row => row.saving),
+        backgroundColor: '#22c55e',
+        borderRadius: 8,
+        barThickness: 28
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 12, padding: 16 }
+      },
+      tooltip: {
+        callbacks: {
+          label: context => `${context.dataset.label}: Rs.${context.parsed.y.toLocaleString()}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { maxRotation: 0, minRotation: 0 }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: value => `Rs.${Number(value).toLocaleString()}`
+        }
+      }
+    }
+  };
+
   return (
-    <div className="price-analysis-card" style={{ margin: '20px' }}>
-      <h3><ChartNoAxesCombined size={18} /> Your Spending Insights</h3>
-      <div style={{ height: '200px' }}><Doughnut data={spendingData} /></div>
-      <p>You've saved ₹{cart.reduce((s,i)=>s+(i.oldPrice-i.price)*i.qty,0).toLocaleString()} across {cart.length} items.</p>
+    <div className="price-analysis-card category-comparison-card">
+      <div className="category-comparison-header">
+        <div>
+          <h3 className="category-comparison-title">
+            <ChartNoAxesCombined size={20} /> Spending vs Saving by Category
+          </h3>
+          <p className="category-comparison-subtitle">
+            Compare what you paid with the discount saved across product categories.
+          </p>
+        </div>
+        <div className="comparison-totals">
+          <div className="comparison-total">
+            <div className="comparison-label">Total spending</div>
+            <div className="comparison-value">Rs.{totalSpending.toLocaleString()}</div>
+          </div>
+          <div className="comparison-total">
+            <div className="comparison-label">Total saving</div>
+            <div className="comparison-value">Rs.{totalSaving.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="category-comparison-chart">
+        <Bar data={comparisonData} options={chartOptions} />
+      </div>
+
+      <div className="category-breakdown-grid">
+        {comparisonRows.map(row => (
+          <div className="category-breakdown-item" key={row.category}>
+            <div className="category-breakdown-name">{row.category}</div>
+            <div className="category-breakdown-line">
+              <span>Spent</span>
+              <strong>Rs.{row.spending.toLocaleString()}</strong>
+            </div>
+            <div className="category-breakdown-line">
+              <span>Saved</span>
+              <strong>Rs.{row.saving.toLocaleString()}</strong>
+            </div>
+            <div className="category-breakdown-line">
+              <span>Items</span>
+              <strong>{row.items}</strong>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ height: '180px', marginTop: '18px' }}>
+        <Doughnut data={spendingData} />
+      </div>
     </div>
   );
 }
@@ -1144,11 +1314,13 @@ function AuthProvider({ children }) {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded = JSON.parse(atob(token.split('.')[1]));
-        setUser(decoded);
+        const payload = token.split('.')[1];
+        if (!payload) throw new Error('Invalid token format');
+        setUser(JSON.parse(atob(payload)));
       } catch (err) {
         console.error('Token error:', err);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     }
     setLoading(false);
@@ -1157,11 +1329,13 @@ function AuthProvider({ children }) {
   const login = (userData, token) => {
     setUser(userData);
     localStorage.setItem('token', token);
+    writeStorage('user', userData);
   };
   
   const logout = () => {
     setUser(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
   };
   
   return (
@@ -1180,21 +1354,15 @@ function AppProvider({ children }) {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('bm_orders');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [addresses, setAddresses] = useState(() => {
-    const saved = localStorage.getItem('bm_addresses');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [orders, setOrders] = useState(() => readStorage('bm_orders', []));
+  const [addresses, setAddresses] = useState(() => readStorage('bm_addresses', []));
 
   // Persist orders and addresses
   useEffect(() => {
-    localStorage.setItem('bm_orders', JSON.stringify(orders));
+    writeStorage('bm_orders', orders);
   }, [orders]);
   useEffect(() => {
-    localStorage.setItem('bm_addresses', JSON.stringify(addresses));
+    writeStorage('bm_addresses', addresses);
   }, [addresses]);
 
   useEffect(() => {
@@ -1203,9 +1371,16 @@ function AppProvider({ children }) {
   }, [darkMode]);
   
   const addToCart = (product, qty = 1) => {
+    if (!product?.id) {
+      toast.error('Unable to add this product');
+      return;
+    }
+    const safeQty = Math.max(1, Number(qty) || 1);
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
-      return existing ? prev.map(item => item.id === product.id ? { ...item, qty: item.qty + qty } : item) : [...prev, { ...product, qty }];
+      return existing
+        ? prev.map(item => item.id === product.id ? { ...item, qty: getItemQty(item) + safeQty } : item)
+        : [...prev, { ...product, qty: safeQty }];
     });
     toast.success('✅ Added to cart!');
   };
@@ -1274,7 +1449,6 @@ function HomePage() {
         </div>
       </section>
       <PersonalizedRecommendations />
-      <AnalyticsDashboard />
       <Footer />
       <BottomNav />
       <AIChat />
@@ -1439,8 +1613,8 @@ function CartPage() {
   const [paymentMode, setPaymentMode] = useState('UPI');
   const [orderPlaced, setOrderPlaced] = useState(false);
 
-  const totalSpend = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const totalSaved = cart.reduce((sum, item) => sum + (item.oldPrice - item.price) * item.qty, 0);
+  const totalSpend = cart.reduce((sum, item) => sum + getItemPrice(item) * getItemQty(item), 0);
+  const totalSaved = cart.reduce((sum, item) => sum + (getItemOldPrice(item) - getItemPrice(item)) * getItemQty(item), 0);
 
   const handlePlaceOrder = () => {
     if (addresses.length === 0) {
@@ -1459,7 +1633,7 @@ function CartPage() {
 
     const order = {
       id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-      items: cart.map(item => ({ ...item, total: item.price * item.qty })),
+      items: cart.map(item => ({ ...item, qty: getItemQty(item), total: getItemPrice(item) * getItemQty(item) })),
       total: totalSpend,
       address: selectedAddress,
       payment: paymentMode,
@@ -1499,14 +1673,15 @@ function CartPage() {
       <div style={{ display: 'grid', gap: '20px', marginBottom: '24px' }}>
         {cart.map(item => (
           <div key={item.id} className="cart-item">
-            <div><strong>{item.name}</strong><br />₹{item.price} x {item.qty}</div>
+            <div><strong>{item.name}</strong><br />₹{getItemPrice(item)} x {getItemQty(item)}</div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setCart(cart.map(i => i.id === item.id ? { ...i, qty: Math.max(1, i.qty - 1) } : i))} className="icon-btn">−</button>
-              <button onClick={() => setCart(cart.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i))} className="icon-btn">+</button>
+              <button onClick={() => setCart(cart.map(i => i.id === item.id ? { ...i, qty: Math.max(1, getItemQty(i) - 1) } : i))} className="icon-btn">−</button>
+              <button onClick={() => setCart(cart.map(i => i.id === item.id ? { ...i, qty: getItemQty(i) + 1 } : i))} className="icon-btn">+</button>
               <button onClick={() => setCart(cart.filter(i => i.id !== item.id))} className="icon-btn"><Trash2 size={16} /></button>
             </div>
           </div>
         ))}
+        <AnalyticsDashboard />
         <div className="cart-total">
           <div className="cart-total-row final">Total: ₹{totalSpend.toLocaleString()}</div>
           <button className="cart-checkout-btn" onClick={() => setShowCheckout(true)}>Place Order</button>
