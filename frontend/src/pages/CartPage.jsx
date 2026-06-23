@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
 import PaymentModal from '../components/PaymentModal';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQty } = useApp();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [showPayment, setShowPayment] = useState(false);
 
@@ -80,7 +83,19 @@ export default function CartPage() {
           <div className="cart-total-row"><span>Shipping</span><span style={{ color: shipping === 0 ? '#16a34a' : 'inherit' }}>{shipping === 0 ? 'FREE' : '₹' + shipping}</span></div>
           {shipping === 0 && <div style={{ fontSize: 12, color: '#16a34a', marginBottom: 8 }}>🎉 Free shipping applied!</div>}
           <div className="cart-total-row final"><span>Total</span><span style={{ color: '#ff3859' }}>₹{total.toLocaleString()}</span></div>
-          <button className="cart-checkout-btn" onClick={() => setShowPayment(true)}>Proceed to Checkout →</button>
+          <button 
+            className="cart-checkout-btn" 
+            onClick={() => {
+              if (!user) {
+                toast.warn('Please login or register to place an order! 🔒');
+                navigate('/login');
+              } else {
+                setShowPayment(true);
+              }
+            }}
+          >
+            Proceed to Checkout →
+          </button>
         </div>
       </div>
       {showPayment && <PaymentModal total={total} onClose={() => setShowPayment(false)} />}
