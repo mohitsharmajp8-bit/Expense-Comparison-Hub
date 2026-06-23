@@ -289,7 +289,6 @@ for (const cat of categoriesList.slice(1, -1)) {
     const rating = 3.8 + (i % 13) / 10;
     const reviews = 150 + i * 180;
     const delivery = cat === 'Grocery' ? '10 mins' : '1-2 days';
-    const discount = `${Math.round((oldPrice - basePrice) / oldPrice * 100)}% OFF`;
     const offers = ['No Cost EMI Available', 'Partner Bank Offer'];
     const compare = {};
     const platformKeys = Object.keys(PLATFORMS);
@@ -299,6 +298,7 @@ for (const cat of categoriesList.slice(1, -1)) {
         ? Math.round(basePrice * 0.9)
         : Math.round(basePrice * (0.92 + Math.random() * 0.2));
     }
+    const bestPrice = Math.min(...Object.values(compare));
     const priceHistory = [];
     const today = new Date();
     let current = basePrice;
@@ -308,20 +308,21 @@ for (const cat of categoriesList.slice(1, -1)) {
       current = Math.round(Math.max(basePrice * 0.75, Math.min(oldPrice * 0.95, current * (1 + noise))));
       priceHistory.push({ date: date.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }), price: current });
     }
-    priceHistory[priceHistory.length - 1].price = basePrice;
+    priceHistory[priceHistory.length - 1].price = bestPrice;
     const pricesOnly = priceHistory.map(p => p.price);
     const avgPrice = Math.round(pricesOnly.reduce((a, b) => a + b, 0) / pricesOnly.length);
     const lowestPrice = Math.min(...pricesOnly);
     const highestPrice = Math.max(...pricesOnly);
     const competitorPrices = Object.values(compare);
     const avgComp = competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
-    const compAdvantage = (avgComp - basePrice) / avgComp;
-    const discountPercent = Math.round((oldPrice - basePrice) / oldPrice * 100);
-    let dealScore = Math.min(1, Math.max(0, (discountPercent / 100) * 0.5 + compAdvantage * 0.3 + (basePrice < avgPrice ? 0.2 : 0)));
+    const compAdvantage = (avgComp - bestPrice) / avgComp;
+    const discountPercent = Math.round((oldPrice - bestPrice) / oldPrice * 100);
+    const discount = `${discountPercent}% OFF`;
+    let dealScore = Math.min(1, Math.max(0, (discountPercent / 100) * 0.5 + compAdvantage * 0.3 + (bestPrice < avgPrice ? 0.2 : 0)));
     const isGoodTime = dealScore > 0.6;
     products.push({
       id: idCounter++, category: cat, name: uniqueName, desc: 'Premium quality product • Selected Seller Choice',
-      price: basePrice, oldPrice, rating, reviews, delivery, discount, offers, compare,
+      price: bestPrice, oldPrice, rating, reviews, delivery, discount, offers, compare,
       image: productImageMap[name] || 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?w=400&q=80',
       priceHistory, avgPrice, lowestPrice, highestPrice, dealScore,
       buyRecommendation: isGoodTime ? 'Go Ahead & Buy now' : 'Wait for better price',
@@ -335,13 +336,14 @@ for (const veg of vegetablesList) {
   const { price, oldPrice } = veg;
   const rating = 4 + Math.random() * 0.8;
   const reviews = Math.floor(Math.random() * 2000) + 120;
-  const discountPercent = Math.round((oldPrice - price) / oldPrice * 100);
   const compare = {};
   const platformKeys = Object.keys(PLATFORMS);
   const bestPlatform = platformKeys[Math.floor(Math.random() * platformKeys.length)];
   for (const platform of platformKeys) {
     compare[platform] = platform === bestPlatform ? Math.round(price * 0.9) : Math.round(price * (0.92 + Math.random() * 0.2));
   }
+  const bestPrice = Math.min(...Object.values(compare));
+  const discountPercent = Math.round((oldPrice - bestPrice) / oldPrice * 100);
   const priceHistory = [];
   const today = new Date();
   let current = price;
@@ -350,18 +352,18 @@ for (const veg of vegetablesList) {
     current = Math.round(Math.max(price * 0.75, Math.min(oldPrice * 0.95, current * (1 + (Math.random() - 0.5) * 0.15))));
     priceHistory.push({ date: date.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }), price: current });
   }
-  priceHistory[priceHistory.length - 1].price = price;
+  priceHistory[priceHistory.length - 1].price = bestPrice;
   const pricesOnly = priceHistory.map(p => p.price);
   const avgPrice = Math.round(pricesOnly.reduce((a, b) => a + b, 0) / pricesOnly.length);
   const competitorPrices = Object.values(compare);
   const avgComp = competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
-  let dealScore = Math.min(1, Math.max(0, (discountPercent / 100) * 0.5 + ((avgComp - price) / avgComp) * 0.3 + (price < avgPrice ? 0.2 : 0)));
+  let dealScore = Math.min(1, Math.max(0, (discountPercent / 100) * 0.5 + ((avgComp - bestPrice) / avgComp) * 0.3 + (bestPrice < avgPrice ? 0.2 : 0)));
   const isGoodTime = dealScore > 0.6;
   products.push({
     id: idCounter++, category: 'Vegetables',
     name: `${veg.en} (${veg.hi} / ${veg.kn})`,
     desc: `${veg.desc} | हिंदी: ${veg.hi} | ಕನ್ನಡ: ${veg.kn}`,
-    price, oldPrice, rating, reviews, delivery: '10 mins - 1 day',
+    price: bestPrice, oldPrice, rating, reviews, delivery: '10 mins - 1 day',
     discount: `${discountPercent}% OFF`, offers: ['Fresh Stock Daily', 'Free Delivery Available'],
     compare, image: productImageMap[veg.en] || 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&q=80',
     priceHistory, avgPrice,

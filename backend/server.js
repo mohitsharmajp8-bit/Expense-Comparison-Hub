@@ -72,7 +72,7 @@ const pool = mysql.createPool({
         order_number VARCHAR(50) UNIQUE NOT NULL,
         items JSON,
         total DECIMAL(10,2) NOT NULL,
-        status ENUM('processing','confirmed','shipped','out_for_delivery','delivered') DEFAULT 'processing',
+        status ENUM('processing','confirmed','shipped','out_for_delivery','delivered','cancelled') DEFAULT 'processing',
         payment_method VARCHAR(50),
         shipping_address TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -81,6 +81,16 @@ const pool = mysql.createPool({
       )
     `);
     console.log('✅ Orders table ready');
+
+    // Run migration to add 'cancelled' to the ENUM if not already present
+    try {
+      await pool.query(`
+        ALTER TABLE orders MODIFY COLUMN status ENUM('processing','confirmed','shipped','out_for_delivery','delivered','cancelled') DEFAULT 'processing'
+      `);
+      console.log('✅ Orders status ENUM updated/verified');
+    } catch (err) {
+      console.warn('⚠️ Could not alter orders status enum (it might be already updated):', err.message);
+    }
 
     // Seeding products table
     const [existingProducts] = await pool.query('SELECT COUNT(*) as count FROM products');
@@ -372,8 +382,18 @@ const pool = mysql.createPool({
           const delivery = cat === 'Grocery' ? '10 mins' : '1-2 days';
           const img = seedProductImageMap[name] || 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?w=400&q=80';
 
+          // Calculate Best Price (minimum compared price)
+          const platformKeys = ['Amazon', 'Flipkart', 'Zepto', 'Blinkit', 'BigBasket', 'Instamart'];
+          const bestPlatform = platformKeys[Math.floor(Math.random() * platformKeys.length)];
+          const comparePrices = platformKeys.map(platform => {
+            return platform === bestPlatform
+              ? Math.round(basePrice * 0.9)
+              : Math.round(basePrice * (0.92 + Math.random() * 0.2));
+          });
+          const bestPrice = Math.min(...comparePrices);
+
           seedProducts.push([
-            uniqueName, cat, basePrice, oldPrice, 'Premium quality product • Selected Seller Choice',
+            uniqueName, cat, bestPrice, oldPrice, 'Premium quality product • Selected Seller Choice',
             img, rating, reviews, delivery
           ]);
         }
@@ -386,8 +406,18 @@ const pool = mysql.createPool({
         const desc = `${veg.desc} | हिंदी: ${veg.hi} | ಕನ್ನಡ: ${veg.kn}`;
         const img = seedProductImageMap[veg.en] || 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&q=80';
 
+        // Calculate Best Price for vegetable
+        const platformKeys = ['Amazon', 'Flipkart', 'Zepto', 'Blinkit', 'BigBasket', 'Instamart'];
+        const bestPlatform = platformKeys[Math.floor(Math.random() * platformKeys.length)];
+        const comparePrices = platformKeys.map(platform => {
+          return platform === bestPlatform
+            ? Math.round(veg.price * 0.9)
+            : Math.round(veg.price * (0.92 + Math.random() * 0.2));
+        });
+        const bestPrice = Math.min(...comparePrices);
+
         seedProducts.push([
-          name, 'Vegetables', veg.price, veg.oldPrice, desc,
+          name, 'Vegetables', bestPrice, veg.oldPrice, desc,
           img, rating, reviews, '10 mins - 1 day'
         ]);
       }
@@ -648,6 +678,34 @@ app.get('/api/orders', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Error fetching orders:', err);
     res.status(500).json({ message: 'Failed to fetch orders' });
+  }
+});
+
+app.post('/api/orders/:id/cancel', authMiddleware, async (req, res) => {
+  const orderIdOrNum = req.params.id;
+  try {
+    const [orders] = await pool.query(
+      'SELECT * FROM orders WHERE user_id = ? AND (id = ? OR order_number = ?)',
+      [req.user.id, orderIdOrNum, orderIdOrNum]
+    );
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    const order = orders[0];
+    if (['shipped', 'out_for_delivery', 'delivered'].includes(order.status)) {
+      return res.status(400).json({ message: `Cannot cancel order in '${order.status}' status.` });
+    }
+    if (order.status === 'cancelled') {
+      return res.status(400).json({ message: 'Order is already cancelled.' });
+    }
+    await pool.query(
+      'UPDATE orders SET status = "cancelled" WHERE id = ?',
+      [order.id]
+    );
+    res.json({ message: 'Order cancelled successfully', status: 'cancelled' });
+  } catch (err) {
+    console.error('Error cancelling order:', err);
+    res.status(500).json({ message: 'Failed to cancel order' });
   }
 });
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import { Clock, Phone, MessageSquare, ArrowLeft, Check, Sparkles, MapPin } from 'lucide-react';
+import { Clock, Phone, MessageSquare, ArrowLeft, Check, Sparkles, MapPin, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -113,9 +113,47 @@ export default function TrackingPage() {
     loadTrackedOrder();
   }, [user, location.state]);
 
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    
+    const orderId = order.order_number || order.id?.toString();
+    try {
+      if (user) {
+        await API.post(`/orders/${orderId}/cancel`);
+      } else {
+        const raw = localStorage.getItem('bm_offline_orders');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const updated = parsed.map(o => {
+            if (o.order_number === orderId || o.id?.toString() === orderId) {
+              return { ...o, status: 'cancelled' };
+            }
+            return o;
+          });
+          localStorage.setItem('bm_offline_orders', JSON.stringify(updated));
+        }
+      }
+      setOrder(prev => ({ ...prev, status: 'cancelled' }));
+      setStatusMessage('Order has been cancelled. 🛑');
+      setEta(0);
+      toast.success('Order cancelled successfully! 🛑');
+    } catch (err) {
+      console.error('Cancellation failed:', err);
+      toast.error(err.response?.data?.message || 'Failed to cancel order.');
+    }
+  };
+
   // Rider movement animation
   useEffect(() => {
     if (loading || !order) return;
+
+    if (order.status === 'cancelled') {
+      setStatusMessage('Order has been cancelled. 🛑');
+      setEta(0);
+      setDeliveryStep(-1);
+      return;
+    }
 
     const interval = setInterval(() => {
       setWaypointIndex(prevIndex => {
@@ -175,13 +213,18 @@ export default function TrackingPage() {
     }
   }
 
-  const trackerSteps = [
-    { label: 'Packed', desc: 'Order packed at store', step: 0 },
-    { label: 'Rider Assigned', desc: 'Ravi Kumar is at store', step: 1 },
-    { label: 'Dispatched', desc: 'Rider picked up order', step: 2 },
-    { label: 'Out for Delivery', desc: 'Rider is in your area', step: 3 },
-    { label: 'Arrived', desc: 'Collect your order', step: 4 },
-  ];
+  const trackerSteps = order?.status === 'cancelled'
+    ? [
+        { label: 'Order Placed', desc: 'Order was placed.', step: 0 },
+        { label: 'Cancelled', desc: 'This order has been cancelled.', step: -1 }
+      ]
+    : [
+        { label: 'Packed', desc: 'Order packed at store', step: 0 },
+        { label: 'Rider Assigned', desc: 'Ravi Kumar is at store', step: 1 },
+        { label: 'Dispatched', desc: 'Rider picked up order', step: 2 },
+        { label: 'Out for Delivery', desc: 'Rider is in your area', step: 3 },
+        { label: 'Arrived', desc: 'Collect your order', step: 4 },
+      ];
 
   return (
     <div className="page">
@@ -237,9 +280,11 @@ export default function TrackingPage() {
                 <Popup>🏬 Koramangala Hub Store</Popup>
               </Marker>
               
-              <Marker position={riderPos} icon={bikeIcon}>
-                <Popup>🛵 Rider: Ravi Kumar<br />ETA: {eta > 0 ? `${eta} mins` : 'Arrived!'}</Popup>
-              </Marker>
+              {order?.status !== 'cancelled' && (
+                <Marker position={riderPos} icon={bikeIcon}>
+                  <Popup>🛵 Rider: Ravi Kumar<br />ETA: {eta > 0 ? `${eta} mins` : 'Arrived!'}</Popup>
+                </Marker>
+              )}
               
               <Marker position={deliveryPos} icon={homeIcon}>
                 <Popup>🏠 Your address<br />{order?.shipping_address || 'Delivery Location'}</Popup>
@@ -294,8 +339,11 @@ export default function TrackingPage() {
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 900 }}>📦 Dispatch Timeline</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {trackerSteps.map((step, idx) => {
-                const isCompleted = deliveryStep >= step.step;
-                const isCurrent = deliveryStep === step.step;
+                const isCancelled = order?.status === 'cancelled';
+                const isCancelStep = step.label === 'Cancelled';
+                const isCompleted = isCancelled ? true : deliveryStep >= step.step;
+                const isCurrent = isCancelled ? isCancelStep : deliveryStep === step.step;
+                const iconColor = isCancelStep ? '#ef4444' : '#ff3859';
                 return (
                   <div key={idx} style={{ display: 'flex', gap: 12, position: 'relative' }}>
                     {idx < trackerSteps.length - 1 && (
@@ -305,7 +353,7 @@ export default function TrackingPage() {
                         top: '24px', 
                         bottom: '-16px', 
                         width: '2px', 
-                        background: deliveryStep > step.step ? '#ff3859' : '#e2e8f0',
+                        background: isCancelled ? '#ef4444' : deliveryStep > step.step ? '#ff3859' : '#e2e8f0',
                         zIndex: 1
                       }} />
                     )}
@@ -314,18 +362,18 @@ export default function TrackingPage() {
                       width: '26px', 
                       height: '26px', 
                       borderRadius: '50%', 
-                      background: isCompleted ? '#ff3859' : '#f1f5f9', 
+                      background: isCompleted ? iconColor : '#f1f5f9', 
                       color: isCompleted ? 'white' : '#94a3b8', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      border: `2px solid ${isCurrent ? '#ff3859' : 'transparent'}`,
+                      border: `2px solid ${isCurrent ? iconColor : 'transparent'}`,
                       zIndex: 2,
                       fontSize: '11px',
                       fontWeight: 'bold',
-                      boxShadow: isCurrent ? '0 0 8px rgba(255,56,89,0.5)' : 'none'
+                      boxShadow: isCurrent ? `0 0 8px ${iconColor}80` : 'none'
                     }}>
-                      {isCompleted ? <Check size={14} strokeWidth={3} /> : idx + 1}
+                      {isCancelStep ? <X size={14} strokeWidth={3} /> : isCompleted ? <Check size={14} strokeWidth={3} /> : idx + 1}
                     </div>
                     
                     <div>
@@ -346,75 +394,91 @@ export default function TrackingPage() {
             </div>
           </div>
 
-          {/* ETA Card */}
-          <div className="glass-panel" style={{ padding: 24, textAlign: 'center', background: 'linear-gradient(135deg, rgba(255,56,89,0.1), rgba(255,152,0,0.1))', border: '1px solid rgba(255,56,89,0.2)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
-              Estimated Arrival Time
+          {/* ETA Card / Cancelled Status */}
+          {order?.status !== 'cancelled' ? (
+            <div className="glass-panel" style={{ padding: 24, textAlign: 'center', background: 'linear-gradient(135deg, rgba(255,56,89,0.1), rgba(255,152,0,0.1))', border: '1px solid rgba(255,56,89,0.2)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
+                Estimated Arrival Time
+              </div>
+              <div style={{ fontSize: 42, fontWeight: 900, color: '#ff3859', margin: '12px 0 6px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Clock size={32} />
+                {eta > 0 ? `${eta} MINS` : 'ARRIVED'}
+              </div>
+              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+                {eta > 0 ? 'Delivering via Swift Scooter' : 'Rider is outside!'}
+              </div>
             </div>
-            <div style={{ fontSize: 42, fontWeight: 900, color: '#ff3859', margin: '12px 0 6px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <Clock size={32} />
-              {eta > 0 ? `${eta} MINS` : 'ARRIVED'}
+          ) : (
+            <div className="glass-panel" style={{ padding: 24, textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: 1 }}>
+                Status
+              </div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: '#ef4444', margin: '12px 0 6px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                🛑 CANCELLED
+              </div>
+              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+                This order was cancelled successfully.
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
-              {eta > 0 ? 'Delivering via Swift Scooter' : 'Rider is outside!'}
-            </div>
-          </div>
+          )}
 
-          {/* Rider Info Card */}
-          <div className="glass-panel" style={{ padding: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ 
-                width: '50px', 
-                height: '50px', 
-                borderRadius: '50%', 
-                background: 'linear-gradient(135deg,#ff3859,#ff9800)', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                fontSize: '22px' 
-              }}>
-                👨🏻‍✈️
+          {/* Rider Info Card (Hidden when cancelled) */}
+          {order?.status !== 'cancelled' && (
+            <div className="glass-panel" style={{ padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ 
+                  width: '50px', 
+                  height: '50px', 
+                  borderRadius: '50%', 
+                  background: 'linear-gradient(135deg,#ff3859,#ff9800)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontSize: '22px' 
+                }}>
+                  👨🏻‍✈️
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 900, fontSize: 15 }}>Ravi Kumar</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12 }}>Delivery Executive • ⭐ 4.9 (420+ rides)</div>
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 900, fontSize: 15 }}>Ravi Kumar</div>
-                <div style={{ color: '#94a3b8', fontSize: 12 }}>Delivery Executive • ⭐ 4.9 (420+ rides)</div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                <button style={{ 
+                  flex: 1, 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.4)', 
+                  border: '1px solid rgba(0,0,0,0.08)', 
+                  borderRadius: '12px', 
+                  cursor: 'pointer', 
+                  fontWeight: 700, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: 6,
+                  fontSize: '13px'
+                }}>
+                  <Phone size={14} /> Call Rider
+                </button>
+                <button style={{ 
+                  flex: 1, 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.4)', 
+                  border: '1px solid rgba(0,0,0,0.08)', 
+                  borderRadius: '12px', 
+                  cursor: 'pointer', 
+                  fontWeight: 700, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: 6,
+                  fontSize: '13px'
+                }}>
+                  <MessageSquare size={14} /> Chat
+                </button>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button style={{ 
-                flex: 1, 
-                padding: '10px 14px', 
-                background: 'rgba(255,255,255,0.4)', 
-                border: '1px solid rgba(0,0,0,0.08)', 
-                borderRadius: '12px', 
-                cursor: 'pointer', 
-                fontWeight: 700, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: 6,
-                fontSize: '13px'
-              }}>
-                <Phone size={14} /> Call Rider
-              </button>
-              <button style={{ 
-                flex: 1, 
-                padding: '10px 14px', 
-                background: 'rgba(255,255,255,0.4)', 
-                border: '1px solid rgba(0,0,0,0.08)', 
-                borderRadius: '12px', 
-                cursor: 'pointer', 
-                fontWeight: 700, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: 6,
-                fontSize: '13px'
-              }}>
-                <MessageSquare size={14} /> Chat
-              </button>
-            </div>
-          </div>
+          )}
 
           {/* Tracked Order Details */}
           {order && (
@@ -440,6 +504,26 @@ export default function TrackingPage() {
                   ))}
                 </div>
               </div>
+
+              {['processing', 'confirmed'].includes(order.status) && (
+                <button 
+                  onClick={handleCancelOrder}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px', 
+                    background: 'rgba(239, 68, 68, 0.1)', 
+                    border: '1px solid rgba(239, 68, 68, 0.3)', 
+                    color: '#ef4444', 
+                    borderRadius: '12px', 
+                    cursor: 'pointer', 
+                    fontWeight: 700, 
+                    fontSize: '13px',
+                    marginTop: 16 
+                  }}
+                >
+                  🛑 Cancel Order
+                </button>
+              )}
             </div>
           )}
 
