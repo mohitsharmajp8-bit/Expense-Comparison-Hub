@@ -23,6 +23,7 @@ async function checkEnvironment() {
   try {
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT) || 3306,
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'expense_hub'
@@ -37,7 +38,7 @@ async function checkEnvironment() {
     await connection.end();
     
   } catch (error) {
-    console.error("❌ Connection failed:", error.message);
+    console.error("❌ Connection failed:", error);
     console.log("\nPossible fixes:");
     console.log("1. Make sure MySQL is running");
     console.log("2. Check your password in .env file");

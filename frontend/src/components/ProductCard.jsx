@@ -1,119 +1,108 @@
-import { useState } from "react";
-import axios from "axios";
-import { Star } from "lucide-react";
-import { toast } from "react-toastify";
-import { useApp } from "../context/AppContext"; // adjust path as needed
-import PriceAnalysis from "./PriceAnalysis";   // adjust path
-import PlatformCompare from "./PlatformCompare"; // adjust path
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Star, Sparkles, TrendingDown, ChevronUp, ChevronDown, ShoppingCart, Heart } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useApp } from '../contexts/AppContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import PriceAnalysis from './PriceAnalysis';
+import PlatformCompare from './PlatformCompare';
 
-function ProductCard({ item }) {
-  const { addToCart, wishlist, toggleWishlist } = useApp();
-  const isWishlisted = wishlist.find((p) => p.id === item.id);
-  const savings = item.oldPrice - item.price;
-
-  // AI advice state
-  const [loadingAi, setLoadingAi] = useState(false);
-
-  const getAiAdvice = async () => {
-    setLoadingAi(true);
-    try {
-      const response = await axios.post('http://localhost:5000/api/ai-advice', {
-        productName: item.name,
-        price: item.price,
-        oldPrice: item.oldPrice,
-        priceHistory: item.priceHistory,
-        platforms: item.compare
-      });
-      toast.info(response.data.advice, { autoClose: 8000 });
-    } catch (err) {
-      toast.error('AI advice unavailable');
-    } finally {
-      setLoadingAi(false);
-    }
-  };
+export default function ProductCard({ product }) {
+  const { addToCart, toggleWishlist, wishlist } = useApp();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
+  const isWishlisted = wishlist.some(w => w.id === product.id);
 
   return (
-    <div className="product-card">
-      {/* Product Icon / Drawing */}
-      <div className="product-image-wrap">
-        <div
-          className="product-image"
-          style={{
-            background: item.bg,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "90px",
-            color: "white",
-            height: "240px"
+    <motion.div
+      className="product-card"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      layout
+    >
+      <div className="product-image-wrap" style={{ cursor: 'pointer' }} onClick={() => navigate(`/product/${product.id}`)}>
+        <img 
+          src={product.image} 
+          alt={product.name} 
+          className="product-image" 
+          loading="lazy" 
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f1f5f9"/><rect x="10" y="10" width="180" height="180" rx="12" fill="%23e2e8f0" stroke="%23cbd5e1" stroke-width="1.5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="%2394a3b8">BharatMart</text></svg>';
           }}
-        >
-          {item.icon}
-        </div>
-
-        <div className="discount-badge">{item.discount}</div>
-        <div className="delivery-badge">⚡ {item.delivery}</div>
+        />
+        <div className="discount-badge">{product.discount}</div>
+        <div className="delivery-badge">🚀 {product.delivery}</div>
       </div>
-
-      {/* Product Content */}
       <div className="product-content">
-        <h3 className="product-title">{item.name}</h3>
-        <p className="product-desc">{item.desc}</p>
-
-        {/* Rating */}
+        <div className="product-title" style={{ cursor: 'pointer' }} onClick={() => navigate(`/product/${product.id}`)}>
+          {product.name}
+        </div>
+        <div className="product-desc">{product.desc}</div>
         <div className="rating">
-          <div className="rating-score">
-            <Star size={12} fill="#2e7d32" color="#2e7d32" />
-            {item.rating}
-          </div>
-          <span className="review-count">
-            ({item.reviews.toLocaleString()} reviews)
+          <div className="rating-score"><Star size={12} fill="#16a34a" />{product.rating.toFixed(1)}</div>
+          <div className="review-count">{product.reviews.toLocaleString()} reviews</div>
+          <span className="ai-badge" onClick={(e) => { e.stopPropagation(); setShowAnalysis(!showAnalysis); }}>
+            <Sparkles size={10} /> AI Analysis
           </span>
         </div>
-
-        {/* Price */}
         <div className="price">
-          <span className="current-price">₹{item.price.toLocaleString()}</span>
-          <span className="old-price">₹{item.oldPrice.toLocaleString()}</span>
-          <span className="savings-tag">Save ₹{savings.toLocaleString()}</span>
+          <div className="current-price">₹{product.price.toLocaleString()}</div>
+          <div className="old-price">₹{product.oldPrice.toLocaleString()}</div>
+          <div className="savings-tag">Save ₹{(product.oldPrice - product.price).toLocaleString()}</div>
         </div>
-
-        {/* Offers */}
         <div className="offer-tags">
-          {item.offers.map((offer, i) => (
-            <span className="offer" key={i}>{offer}</span>
-          ))}
+          {product.offers.map(o => <span key={o} className="offer">{o}</span>)}
         </div>
 
-        {/* Price Analysis */}
-        <PriceAnalysis product={item} />
+        <AnimatePresence>
+          {showAnalysis && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <PriceAnalysis product={product} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Platform Comparison */}
-        <PlatformCompare compare={item.compare} />
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#64748b' }}
+          onClick={() => setShowCompare(!showCompare)}
+        >
+          <TrendingDown size={14} color="#ff3859" />
+          {showCompare ? "Hide" : "Compare"} Platform Prices
+          {showCompare ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </div>
+        
+        <AnimatePresence>
+          {showCompare && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <PlatformCompare product={product} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Buttons Row */}
         <div className="card-buttons">
-          <button className="add-btn" onClick={() => addToCart(item)}>
-            Add To Cart
+          <button className="add-btn" onClick={() => { addToCart(product); toast.success(`${product.name} added to cart! 🛒`); }}>
+            <ShoppingCart size={16} style={{ display: 'inline', marginRight: 6 }} />{t('addToCart')}
           </button>
-
-          <button className="wishlist-btn" onClick={() => toggleWishlist(item)}>
-            {isWishlisted ? "❤️" : "🤍"}
-          </button>
-
-          {/* AI Advice Button – separate button */}
-          <button
-            className="wishlist-btn"
-            onClick={getAiAdvice}
-            style={{ fontSize: '14px', fontWeight: 'bold' }}
-            disabled={loadingAi}
-          >
-            {loadingAi ? '⏳' : '🤖 AI'}
+          <button className="wishlist-btn" onClick={() => toggleWishlist(product)} style={{ color: isWishlisted ? '#ff3859' : '#94a3b8' }}>
+            <Heart size={18} fill={isWishlisted ? '#ff3859' : 'none'} color={isWishlisted ? '#ff3859' : '#94a3b8'} />
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
-
-export default ProductCard;

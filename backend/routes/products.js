@@ -1,16 +1,30 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const db = require("../config/db");
+const pool = require('../config/db');
 
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM products", (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).json(err);
+// Get all products
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM products');
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching products:', err.message);
+    res.status(500).json({ message: 'Failed to fetch products' });
+  }
+});
+
+// Get product by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Product not found' });
     }
-
-    res.json(result);
-  });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error fetching product:', err.message);
+    res.status(500).json({ message: 'Failed to fetch product' });
+  }
 });
 
 module.exports = router;

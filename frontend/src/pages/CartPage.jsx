@@ -1,112 +1,89 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
-import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
+import { useApp } from '../contexts/AppContext';
+import PaymentModal from '../components/PaymentModal';
 
-const CartPage = () => {
-  const { items, totalAmount, totalQuantity } = useSelector((state) => state.cart);
-  const dispatch = useDispatch();
+export default function CartPage() {
+  const { cart, removeFromCart, updateQty } = useApp();
+  const navigate = useNavigate();
+  const [showPayment, setShowPayment] = useState(false);
 
-  if (items.length === 0) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <ShoppingBag className="h-24 w-24 mx-auto text-gray-400 mb-4" />
-        <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-        <p className="text-gray-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
-        <Link to="/products" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
-          Continue Shopping
-        </Link>
-      </div>
-    );
-  }
+  const subtotal = cart.reduce((s, i) => s + i.price * (i.quantity || 1), 0);
+  const shipping = subtotal > 499 ? 0 : 49;
+  const total = subtotal + shipping;
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
-      
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            {items.map((item) => (
-              <div key={item.id} className="border-b px-6 py-4">
-                <div className="flex flex-col md:flex-row gap-4 items-center">
-                  <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-gray-600">${item.price}</p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }))}
-                      className="p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <span className="w-12 text-center">{item.quantity}</span>
-                    <button
-                      onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))}
-                      className="p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="font-semibold">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </div>
-                  
-                  <button
-                    onClick={() => dispatch(removeFromCart(item.id))}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-            
-            <div className="bg-gray-50 px-6 py-4 flex justify-between">
-              <button onClick={() => dispatch(clearCart())} className="text-red-600 hover:text-red-800">
-                Clear Cart
-              </button>
-              <Link to="/products" className="inline-flex items-center text-blue-600 hover:text-blue-800">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Add More Items
-              </Link>
-            </div>
-          </div>
-        </div>
-        
-        <div className="lg:w-96">
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-            <div className="space-y-2 border-b pb-4">
-              <div className="flex justify-between">
-                <span>Subtotal ({totalQuantity} items)</span>
-                <span>${totalAmount.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span className="text-green-600">Free</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tax (10%)</span>
-                <span>${(totalAmount * 0.1).toFixed(2)}</span>
-              </div>
-            </div>
-            <div className="flex justify-between mt-4 font-bold text-lg">
-              <span>Total</span>
-              <span>${(totalAmount + totalAmount * 0.1).toFixed(2)}</span>
-            </div>
-            <button className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
-              Proceed to Checkout
-            </button>
-          </div>
-        </div>
-      </div>
+  if (cart.length === 0) return (
+    <div className="page" style={{ textAlign: 'center', paddingTop: 80 }}>
+      <div style={{ fontSize: 64, marginBottom: 16 }}>🛒</div>
+      <div style={{ fontSize: 24, fontWeight: 800 }}>Your cart is empty</div>
+      <div style={{ color: '#94a3b8', marginTop: 8, marginBottom: 24 }}>Add some awesome products!</div>
+      <button 
+        onClick={() => navigate('/')} 
+        style={{ padding: '14px 28px', background: 'linear-gradient(135deg,#ff3859,#ff9800)', color: 'white', border: 'none', borderRadius: 16, cursor: 'pointer', fontWeight: 800, fontSize: 16 }}
+      >
+        Shop Now →
+      </button>
     </div>
   );
-};
 
-export default CartPage;
+  return (
+    <div className="page">
+      <h1 className="page-title">🛒 Your Cart</h1>
+      <div className="cart-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 24, alignItems: 'start' }}>
+        <div>
+          {cart.map(item => (
+            <div key={item.id} className="cart-item">
+              <img 
+                src={item.image} 
+                alt={item.name} 
+                style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'cover' }} 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f1f5f9"/><rect x="10" y="10" width="180" height="180" rx="12" fill="%23e2e8f0" stroke="%23cbd5e1" stroke-width="1.5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="%2394a3b8">BharatMart</text></svg>';
+                }}
+              />
+              <div style={{ flex: 1, marginLeft: 16 }}>
+                <div style={{ fontWeight: 800, fontSize: 16 }}>{item.name}</div>
+                <div style={{ color: '#94a3b8', fontSize: 13 }}>{item.category}</div>
+                <div style={{ color: '#ff3859', fontWeight: 700, fontSize: 18, marginTop: 6 }}>₹{item.price.toLocaleString()}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.4)', borderRadius: 12, padding: '4px 8px', border: '1px solid rgba(255,255,255,0.5)' }}>
+                  <button 
+                    onClick={() => updateQty(item.id, (item.quantity || 1) - 1)} 
+                    style={{ width: 28, height: 28, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, fontWeight: 700 }}
+                  >
+                    −
+                  </button>
+                  <span style={{ fontWeight: 800, minWidth: 24, textAlign: 'center' }}>{item.quantity || 1}</span>
+                  <button 
+                    onClick={() => updateQty(item.id, (item.quantity || 1) + 1)} 
+                    style={{ width: 28, height: 28, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, fontWeight: 700 }}
+                  >
+                    +
+                  </button>
+                </div>
+                <button 
+                  onClick={() => removeFromCart(item.id)} 
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff3859' }}
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="cart-total">
+          <h3 style={{ fontWeight: 900, fontSize: 20, marginBottom: 16, marginTop: 0 }}>Order Summary</h3>
+          <div className="cart-total-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString()}</span></div>
+          <div className="cart-total-row"><span>Shipping</span><span style={{ color: shipping === 0 ? '#16a34a' : 'inherit' }}>{shipping === 0 ? 'FREE' : '₹' + shipping}</span></div>
+          {shipping === 0 && <div style={{ fontSize: 12, color: '#16a34a', marginBottom: 8 }}>🎉 Free shipping applied!</div>}
+          <div className="cart-total-row final"><span>Total</span><span style={{ color: '#ff3859' }}>₹{total.toLocaleString()}</span></div>
+          <button className="cart-checkout-btn" onClick={() => setShowPayment(true)}>Proceed to Checkout →</button>
+        </div>
+      </div>
+      {showPayment && <PaymentModal total={total} onClose={() => setShowPayment(false)} />}
+    </div>
+  );
+}
