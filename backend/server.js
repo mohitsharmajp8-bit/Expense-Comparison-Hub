@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,10 @@ const grokClient = new OpenAI({
   apiKey: process.env.XAI_API_KEY,
   baseURL: "https://api.x.ai/v1",
 });
+
+// Initialize the Gemini client (Google) – will fallback if no API key
+const geminiApiKey = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here' ? process.env.GEMINI_API_KEY : null;
+const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
 // MySQL connection pool
 const pool = mysql.createPool({
@@ -501,7 +506,28 @@ app.post('/api/login', async (req, res) => {
 
 // ========== AI ENDPOINTS ==========
 
-// 1. AI Advice – Grok with fallback
+// Helper function for local chatbot fallback
+function getLocalChatResponse(message) {
+  const msg = message.toLowerCase();
+  if (msg.includes("discount") || msg.includes("sale") || msg.includes("offer")) {
+    return "🎉 We have great discounts! Check products with the 'Deal Score' badge. Today's top deal: 40% off on Samsung Galaxy Buds2 Pro. Use the search bar to find more!";
+  } 
+  if (msg.includes("delivery") || msg.includes("shipping") || msg.includes("deliver")) {
+    return "🚚 Delivery times vary by platform: Zepto/Blinkit: 10 minutes, Amazon/Flipkart: 1-2 days. Your delivery address will be used at checkout for exact estimates.";
+  }
+  if (msg.includes("phone") || msg.includes("mobile") || msg.includes("iphone") || msg.includes("samsung")) {
+    return "📱 We have iPhones, Samsung, OnePlus, and more. For gaming, the OnePlus 12 and iPhone 15 Pro are excellent. Compare prices using the platform badges!";
+  }
+  if (msg.includes("vegetable") || msg.includes("carrot") || msg.includes("potato")) {
+    return "🥕 Fresh vegetables like carrots, potatoes, tomatoes are available under the 'Vegetables' category. Enjoy 10 mins delivery from Zepto/Blinkit!";
+  }
+  if (msg.includes("price") || msg.includes("cost") || msg.includes("cheap")) {
+    return "💰 We compare prices across Amazon, Flipkart, Zepto, Blinkit, BigBasket & Instamart. Look for the 'Best' badge to see the lowest price!";
+  }
+  return "👋 I'm your AI shopping assistant. You can ask me about discounts, delivery times, product recommendations, or price comparisons. What would you like to know?";
+}
+
+// 1. AI Advice – Gemini -> Grok -> Fallback
 app.post('/api/ai-advice', async (req, res) => {
   const { productName, price, oldPrice, priceHistory, platforms } = req.body;
   const discount = ((oldPrice - price) / oldPrice) * 100;
@@ -516,9 +542,34 @@ Average historical price: ₹${avgPrice.toFixed(0)}
 Give a short, actionable buying advice (1-2 sentences). Mention if it's a good deal or if the user should wait.
 `;
 
+  // Helper for rule-based advice fallback
+  const getRuleAdvice = () => {
+    const belowAvg = price < avgPrice * 0.95;
+    if (discount > 30) return `🔥 Great deal! ${discount.toFixed(0)}% off – buy now.`;
+    if (belowAvg) return `✅ Price is below average. Good time to buy.`;
+    if (price > avgPrice * 1.05) return `⏳ Price is higher than usual. Wait for a drop.`;
+    return `👍 Decent price. Compare on other platforms.`;
+  };
+
+  // Try Gemini first
+  if (genAI) {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: "You are a helpful shopping advisor. " + prompt }] }],
+        generationConfig: { maxOutputTokens: 150, temperature: 0.7 }
+      });
+      const advice = result.response.text().trim();
+      return res.json({ advice });
+    } catch (err) {
+      console.warn('Gemini advice failed, falling back to Grok:', err.message);
+    }
+  }
+
+  // Try Grok as secondary fallback
   try {
     const completion = await grokClient.chat.completions.create({
-      model: "grok-2-latest",   // ✅ fixed model name
+      model: "grok-2-latest",
       messages: [
         { role: "system", content: "You are a helpful shopping advisor." },
         { role: "user", content: prompt }
@@ -529,47 +580,44 @@ Give a short, actionable buying advice (1-2 sentences). Mention if it's a good d
     const advice = completion.choices[0].message.content;
     res.json({ advice });
   } catch (error) {
-    console.error('Grok advice error:', error.message);
-    // Fallback rule-based
-    const belowAvg = price < avgPrice * 0.95;
-    let advice = "";
-    if (discount > 30) advice = `🔥 Great deal! ${discount.toFixed(0)}% off – buy now.`;
-    else if (belowAvg) advice = `✅ Price is below average. Good time to buy.`;
-    else if (price > avgPrice * 1.05) advice = `⏳ Price is higher than usual. Wait for a drop.`;
-    else advice = `👍 Decent price. Compare on other platforms.`;
-    res.json({ advice });
+    console.error('Grok/Gemini advice both failed. Using rule-based fallback:', error.message);
+    res.json({ advice: getRuleAdvice() });
   }
 });
 
-// 2. AI Chat – smart rule‑based (works without API)
+// 2. AI Chat – Gemini -> Fallback
 app.post('/api/ai-chat', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  const msg = message.toLowerCase();
-  let reply = "";
+  // Try Gemini
+  if (genAI) {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const chat = model.startChat({
+        history: [
+          {
+            role: "user",
+            parts: [{ text: "You are BharatMart AI, a helpful, friendly, and knowledgeable shopping assistant for BharatMart, a premium e-commerce comparison platform in India. You compare prices across Amazon, Flipkart, Zepto, Blinkit, BigBasket, and Instamart. Keep your answers relatively short (1-3 sentences), structured, and friendly. Answer in the same language as the user (English, Hindi, or Kannada) if they ask in that language. Recommend using the comparison badges on product cards to find the lowest 'Best' price." }]
+          },
+          {
+            role: "model",
+            parts: [{ text: "Understood! I am BharatMart AI, your shopping assistant. I will provide helpful price comparisons, product recommendations, and store info. How can I help you today?" }]
+          }
+        ]
+      });
+      const result = await chat.sendMessage(message);
+      const reply = result.response.text().trim();
+      return res.json({ reply });
+    } catch (err) {
+      console.warn('Gemini chat failed, falling back to rule-based logic:', err.message);
+    }
+  }
 
-  if (msg.includes("discount") || msg.includes("sale") || msg.includes("offer")) {
-    reply = "🎉 We have great discounts! Check products with the 'Deal Score' badge. Today's top deal: 40% off on Samsung Galaxy Buds2 Pro. Use the search bar to find more!";
-  } 
-  else if (msg.includes("delivery") || msg.includes("shipping") || msg.includes("deliver")) {
-    reply = "🚚 Delivery times vary by platform: Zepto/Blinkit: 10 minutes, Amazon/Flipkart: 1-2 days. Your delivery address will be used at checkout for exact estimates.";
-  }
-  else if (msg.includes("phone") || msg.includes("mobile") || msg.includes("iphone") || msg.includes("samsung")) {
-    reply = "📱 We have iPhones, Samsung, OnePlus, and more. For gaming, the OnePlus 12 and iPhone 15 Pro are excellent. Compare prices using the platform badges!";
-  }
-  else if (msg.includes("vegetable") || msg.includes("carrot") || msg.includes("potato")) {
-    reply = "🥕 Fresh vegetables like carrots, potatoes, tomatoes are available under the 'Vegetables' category. Enjoy 10 mins delivery from Zepto/Blinkit!";
-  }
-  else if (msg.includes("price") || msg.includes("cost") || msg.includes("cheap")) {
-    reply = "💰 We compare prices across Amazon, Flipkart, Zepto, Blinkit, BigBasket & Instamart. Look for the 'Best' badge to see the lowest price!";
-  }
-  else {
-    reply = "👋 I'm your AI shopping assistant. You can ask me about discounts, delivery times, product recommendations, or price comparisons. What would you like to know?";
-  }
-
+  // Rule-based fallback
+  const reply = getLocalChatResponse(message);
   res.json({ reply });
 });
 
@@ -592,7 +640,7 @@ app.post('/api/price-predict', async (req, res) => {
   res.json({ trend, predictedPrice: Math.round(predictedPrice), confidence });
 });
 
-// 4. Personalized Recommendations – Grok with fallback
+// 4. Personalized Recommendations – Gemini -> Grok -> Fallback
 app.post('/api/personalized-recs', async (req, res) => {
   const { likedProducts, preferences } = req.body;
   
@@ -610,9 +658,31 @@ Prestige Cooker, Philips Air Fryer.
 Return only a JSON array of 4 product names, e.g. ["iPhone 15 Pro Max", "Samsung Galaxy S24 Ultra", ...]
 `;
 
+  const fallback = ["iPhone 15 Pro Max", "Samsung Galaxy S24 Ultra", "OnePlus 12", "Google Pixel 8 Pro"];
+
+  // Try Gemini first
+  if (genAI) {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: "You are a recommendation engine. Return only a valid JSON array of strings. " + prompt }] }],
+        generationConfig: { maxOutputTokens: 200, temperature: 0.5 }
+      });
+      let recs = result.response.text().trim();
+      const match = recs.match(/\[.*\]/s);
+      if (match) {
+        const parsed = JSON.parse(match[0]);
+        return res.json({ recommendations: parsed });
+      }
+    } catch (err) {
+      console.warn('Gemini recommendations failed, falling back to Grok:', err.message);
+    }
+  }
+
+  // Try Grok as secondary fallback
   try {
     const completion = await grokClient.chat.completions.create({
-      model: "grok-2-latest",   // ✅ fixed model name
+      model: "grok-2-latest",
       messages: [
         { role: "system", content: "You are a recommendation engine. Return only valid JSON." },
         { role: "user", content: prompt }
@@ -629,8 +699,7 @@ Return only a JSON array of 4 product names, e.g. ["iPhone 15 Pro Max", "Samsung
     }
     res.json({ recommendations: recs });
   } catch (error) {
-    console.error('Grok recommendations error:', error.message);
-    const fallback = ["iPhone 15 Pro Max", "Samsung Galaxy S24 Ultra", "OnePlus 12", "Google Pixel 8 Pro"];
+    console.error('Grok/Gemini recommendations both failed. Using static fallback:', error.message);
     res.json({ recommendations: fallback });
   }
 });
