@@ -368,7 +368,10 @@ const pool = mysql.createPool({
           else basePrice = 400 + i * 400;
 
           const uniqueName = i >= names.length ? `${name} (V${Math.floor(i / names.length) + 1})` : name;
-          const oldPrice = basePrice + Math.floor(basePrice * 0.25);
+          const catOffset = cat === 'Mobiles' ? 5 : cat === 'Fashion' ? 15 : cat === 'Electronics' ? 10 : cat === 'Grocery' ? 8 : cat === 'Beauty' ? 12 : 9;
+          const itemVariance = (i * 7 + catOffset * 3) % 45;
+          const markupPercent = 0.15 + itemVariance / 100;
+          const oldPrice = Math.round(basePrice * (1 + markupPercent));
           const rating = 3.8 + (i % 13) / 10;
           const reviews = 150 + i * 180;
           const delivery = cat === 'Grocery' ? '10 mins' : '1-2 days';
@@ -376,11 +379,12 @@ const pool = mysql.createPool({
 
           // Calculate Best Price (minimum compared price)
           const platformKeys = ['Amazon', 'Flipkart', 'Zepto', 'Blinkit', 'BigBasket', 'Instamart'];
-          const bestPlatform = platformKeys[Math.floor(Math.random() * platformKeys.length)];
+          const bestPlatform = platformKeys[(i + catOffset) % platformKeys.length];
           const comparePrices = platformKeys.map(platform => {
-            return platform === bestPlatform
-              ? Math.round(basePrice * 0.9)
-              : Math.round(basePrice * (0.92 + Math.random() * 0.2));
+            const platformDiscount = platform === bestPlatform
+              ? 0.05 + ((i * 3) % 15) / 100
+              : ((i * 2 + platform.length) % 10) / 100 - 0.02;
+            return Math.round(basePrice * (1 - platformDiscount));
           });
           const bestPrice = Math.min(...comparePrices);
 

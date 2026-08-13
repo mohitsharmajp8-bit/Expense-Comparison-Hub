@@ -1,4 +1,4 @@
-import { PLATFORMS } from './platforms';
+import { PLATFORMS } from './platforms.js';
 
 const vegetablesList = [
   { en: 'Carrot', hi: 'गाजर', kn: 'ಗಜ್ಜರಿ', price: 40, oldPrice: 50, desc: 'Sweet root vegetable' },
@@ -272,18 +272,22 @@ for (const cat of categoriesList.slice(1, -1)) {
     // Introduce variety in name if repeated to make them unique
     const uniqueName = i >= names.length ? `${name} (V${Math.floor(i / names.length) + 1})` : name;
 
-    const oldPrice = basePrice + Math.floor(basePrice * 0.25);
+    const catOffset = cat === 'Mobiles' ? 5 : cat === 'Fashion' ? 15 : cat === 'Electronics' ? 10 : cat === 'Grocery' ? 8 : cat === 'Beauty' ? 12 : 9;
+    const itemVariance = (i * 7 + catOffset * 3) % 45; // 0 to 44
+    const markupPercent = 0.15 + itemVariance / 100; // 15% to 59% original markup
+    const oldPrice = Math.round(basePrice * (1 + markupPercent));
     const rating = 3.8 + (i % 13) / 10;
     const reviews = 150 + i * 180;
     const delivery = cat === 'Grocery' ? '10 mins' : '1-2 days';
     const offers = ['No Cost EMI Available', 'Partner Bank Offer'];
     const compare = {};
     const platformKeys = Object.keys(PLATFORMS);
-    const bestPlatform = platformKeys[Math.floor(Math.random() * platformKeys.length)];
+    const bestPlatform = platformKeys[(i + catOffset) % platformKeys.length];
     for (const platform of platformKeys) {
-      compare[platform] = platform === bestPlatform
-        ? Math.round(basePrice * 0.9)
-        : Math.round(basePrice * (0.92 + Math.random() * 0.2));
+      const platformDiscount = platform === bestPlatform
+        ? 0.05 + ((i * 3) % 15) / 100
+        : ((i * 2 + platform.length) % 10) / 100 - 0.02;
+      compare[platform] = Math.round(basePrice * (1 - platformDiscount));
     }
     const bestPrice = Math.min(...Object.values(compare));
     const priceHistory = [];
