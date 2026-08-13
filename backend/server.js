@@ -38,15 +38,17 @@ const pool = mysql.createPool({
 // Test MySQL connection & create users table (non‑blocking)
 (async () => {
   try {
-    const connection = await pool.getConnection();
-    console.log('✅ MySQL connected successfully!');
-    connection.release();
+    const isPg = pool.mode === 'postgres';
+    const autoInc = isPg ? 'SERIAL PRIMARY KEY' : 'INT AUTO_INCREMENT PRIMARY KEY';
+    const jsonType = isPg ? 'JSONB' : 'JSON';
+
+    console.log(`✅ Connected successfully to ${isPg ? 'PostgreSQL' : 'MySQL'}!`);
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id ${autoInc},
         name VARCHAR(100) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
+        email VARCHAR(150) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -55,7 +57,7 @@ const pool = mysql.createPool({
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id ${autoInc},
         name VARCHAR(200) NOT NULL,
         category VARCHAR(100),
         price DECIMAL(10,2) NOT NULL,
@@ -72,35 +74,24 @@ const pool = mysql.createPool({
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS orders (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id ${autoInc},
         user_id INT,
         order_number VARCHAR(50) UNIQUE NOT NULL,
-        items JSON,
+        items ${jsonType},
         total DECIMAL(10,2) NOT NULL,
-        status ENUM('processing','confirmed','shipped','out_for_delivery','delivered','cancelled') DEFAULT 'processing',
+        status VARCHAR(50) DEFAULT 'processing',
         payment_method VARCHAR(50),
         shipping_address TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
     console.log('✅ Orders table ready');
 
-    // Run migration to add 'cancelled' to the ENUM if not already present
-    try {
-      await pool.query(`
-        ALTER TABLE orders MODIFY COLUMN status ENUM('processing','confirmed','shipped','out_for_delivery','delivered','cancelled') DEFAULT 'processing'
-      `);
-      console.log('✅ Orders status ENUM updated/verified');
-    } catch (err) {
-      console.warn('⚠️ Could not alter orders status enum (it might be already updated):', err.message);
-    }
-
     // Seeding products table
     const [existingProducts] = await pool.query('SELECT COUNT(*) as count FROM products');
-    if (existingProducts[0].count === 0) {
-      console.log('🌱 Seeding products into MySQL...');
+    if (parseInt(existingProducts[0].count, 10) === 0) {
+      console.log('🌱 Seeding products into PostgreSQL...');
       
       const seedProductNames = {
         Mobiles: [
@@ -418,19 +409,19 @@ const pool = mysql.createPool({
         ]);
       }
 
-      // Bulk insert into MySQL
+      // Bulk insert into PostgreSQL
       for (const p of seedProducts) {
         await pool.query(
           'INSERT INTO products (name, category, price, old_price, description, image, rating, reviews, delivery) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
           p
         );
       }
-      console.log(`✅ Successfully seeded ${seedProducts.length} products into MySQL!`);
+      console.log(`✅ Successfully seeded ${seedProducts.length} products into PostgreSQL!`);
     } else {
-      console.log('✅ MySQL products table already populated');
+      console.log('✅ PostgreSQL products table already populated');
     }
   } catch (err) {
-    console.error('❌ MySQL connection error:', err.message);
+    console.error('❌ PostgreSQL connection error:', err.message);
     console.log('⚠️  The server will continue, but database features will not work until you fix the connection.');
   }
 })();
