@@ -19,7 +19,7 @@ const vegetablesList = [
   { en: 'Sweet Potato', hi: 'शकरकंद', kn: 'ಗೆಣಸು', price: 40, oldPrice: 55, desc: 'Sweet starchy tuber' },
   { en: 'Ladies Finger', hi: 'भिंडी', kn: 'ಬೆಂಡೆಕಾಯಿ', price: 35, oldPrice: 45, desc: 'Fresh okra' },
   { en: 'Brinjal', hi: 'बैंगन', kn: 'ಬದನೆಕಾಯಿ', price: 30, oldPrice: 40, desc: 'Fresh eggplants' },
-  { en: 'Green Peas', hi: 'हरी मटर', kn: 'ಹಸಿರು बಟಾಣಿ', price: 60, oldPrice: 80, desc: 'Sweet green peas' },
+  { en: 'Green Peas', hi: 'हरी मटर', kn: 'ಹಸಿರು ಬಟಾಣಿ', price: 60, oldPrice: 80, desc: 'Sweet green peas' },
   { en: 'Capsicum', hi: 'शिमला मिर्च', kn: 'ಹಸಿರು ಮೆಣಸಿನಕಾಯಿ', price: 50, oldPrice: 70, desc: 'Crisp green bell pepper' },
   { en: 'Beetroot', hi: 'चुकंदर', kn: 'ಬೀಟ್ರೂಟ್', price: 40, oldPrice: 50, desc: 'Sweet earthy beetroot' },
   { en: 'Radish', hi: 'मूली', kn: 'ಮೂಲಂಗಿ', price: 30, oldPrice: 40, desc: 'Crisp white radish' },
@@ -28,204 +28,155 @@ const vegetablesList = [
   { en: 'Bitter Gourd', hi: 'करेला', kn: 'ಹಾಗಲಕಾಯಿ', price: 35, oldPrice: 45, desc: 'Healthy bitter gourd' }
 ];
 
-export const categoriesList = ['All', 'Mobiles', 'Fashion', 'Electronics', 'Grocery', 'Beauty', 'Home & Kitchen', 'Vegetables'];
+export const categoriesList = [
+  'For You',
+  'Fashion',
+  'Mobiles',
+  'Electronics',
+  'Beauty',
+  'Home',
+  'Appliances',
+  'Toys, Baby & More',
+  'Food & Health',
+  'Auto Accessories',
+  'Sports & Fitness',
+  'Furniture',
+  'Books & Stationery',
+  '2 Wheelers',
+  'Vegetables'
+];
 
 const productNames = {
-  Mobiles: [
-    'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Google Pixel 8 Pro', 'OnePlus 12', 'Xiaomi 14 Ultra',
-    'Vivo X100 Pro', 'Nothing Phone (2)', 'Motorola Edge 50 Pro', 'Realme 12 Pro+', 'Poco X6 Pro',
-    'Redmi Note 13 Pro', 'Samsung Galaxy A55', 'OnePlus Nord CE4', 'iPhone 15 Plus', 'Google Pixel 8a',
-    'IQOO 12 5G', 'Oppo Reno 11 Pro', 'Vivo V30 Pro', 'Samsung Galaxy S23 FE', 'Motorola G84 5G',
-    'Nothing Phone (2a)', 'Infinix Note 40 Pro', 'Tecno Camon 30', 'iPhone 14 Pro', 'Samsung Galaxy Fold 5'
-  ],
   Fashion: [
+    'Snitch Oversized Cuban Printed Shirt', 'Snitch Slim Fit Cargo Trousers', 'Snitch Linen Casual Shirt', 'Snitch Vintage Denim Jacket',
     'Nike Air Max Sneakers', 'Adidas Ultraboost Running Shoes', "Levi's 501 Original Jeans", 'Zara Slim Fit Jacket', 'H&M Classic Fleece Hoodie',
     'Puma RS-X Retro Shoes', 'Roadster Casual Denim Shirt', 'U.S. Polo Assn. Polo T-Shirt', 'Jack & Jones Leather Jacket', 'Allen Solly Formal Shirt',
-    'Woodland Waterproof Leather Boots', 'Tommy Hilfiger Casual Blazer', 'Vero Moda Women Floral Dress', 'Only Cotton Casual Top', 'Fabindia Silk Kurta',
-    'Biba Anarkali Suit Set', 'W Cotton Straight Kurti', 'Crocs Classic Clogs', 'Reebok Floatride Running Shoes', 'Asics Gel-Kayano Sneakers',
-    'Skechers Go Walk Shoes', 'Peter England Formal Trousers', 'Wrogn Slim Fit Jeans', 'HRX Activewear Trackpants', 'Puma ESS Training Shorts'
+    'Woodland Waterproof Leather Boots', 'Tommy Hilfiger Casual Blazer', 'Vero Moda Women Floral Dress', 'Only Cotton Casual Top', 'Fabindia Silk Kurta'
+  ],
+  Mobiles: [
+    'Samsung A36 5G', 'vivo T5 Pro 5G', 'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Google Pixel 8 Pro', 'OnePlus 12', 'Xiaomi 14 Ultra',
+    'Vivo X100 Pro', 'Nothing Phone (2)', 'Motorola Edge 50 Pro', 'Realme 12 Pro+', 'Poco X6 Pro', 'Redmi Note 13 Pro', 'Samsung Galaxy A55', 'OnePlus Nord CE4',
+    'iPhone 15 Plus', 'Google Pixel 8a', 'IQOO 12 5G', 'Oppo Reno 11 Pro', 'Vivo V30 Pro'
   ],
   Electronics: [
     'Sony WH-1000XM5 Headphones', 'Apple AirPods Pro (2nd Gen)', 'Bose QuietComfort Ultra', 'JBL Flip 6 Bluetooth Speaker', 'LG C3 55-inch OLED TV',
     'Apple iPad Pro 11-inch', 'Samsung Galaxy Tab S9', 'HP Pavilion 15 Laptop', 'ASUS ROG Strix Gaming Laptop', 'Apple MacBook Air M3',
-    'Dell Inspiron 14 Thin Laptop', 'Lenovo IdeaPad 3', 'Logitech MX Master 3S Mouse', 'Keychron K2 Mechanical Keyboard', 'OnePlus Buds 3 TWS',
-    'Boat Stone 1200 Speaker', 'Seagate 2TB External HDD', 'Samsung 1TB Portable SSD', 'Canon EOS R50 DSLR Camera', 'GoPro Hero 12 Black',
-    'Sony Alpha 7 IV Camera', 'TP-Link Deco Mesh WiFi Router', 'Marshall Acton III Speaker', 'Sennheiser Accentum Headphones', 'Jabra Elite 4 Active Earbuds'
-  ],
-  Grocery: [
-    'Tata Salt Lite 1kg', 'Amul Butter 500g', 'India Gate Basmati Rice 5kg', 'Fortune Kachi Ghani Mustard Oil 1L', 'Maggi 2-Minute Noodles 12-Pack',
-    'Brooke Bond Red Label Tea 1kg', 'Aashirvaad Shudh Chakki Atta 10kg', 'Catch Turmeric Powder 200g', 'Everest Garam Masala 100g', 'Kellogg\'s Corn Flakes 1.2kg',
-    'Saffola Gold Cooking Oil 5L', 'Dabur Honey 500g', 'Britannia Good Day Cookies 8-Pack', 'Parle-G Gluco Biscuits 800g', 'Nescafe Classic Instant Coffee 200g',
-    'Surf Excel Easy Wash Detergent 5kg', 'Dettol Liquid Handwash 1.5L', 'Colgate MaxFresh Toothpaste 300g', 'Vim Dishwash Gel 2L', 'Lizol Floor Cleaner 2L',
-    'Harpic Disinfectant Toilet Cleaner 1L', 'Catch Coriander Powder 200g', 'Everest Kashmiri Chilli Powder 200g', 'Tata Tea Gold 1kg', 'Daawat Rozana Super Basmati Rice 5kg'
+    'Dell Inspiron 14 Thin Laptop', 'Lenovo IdeaPad 3', 'Logitech MX Master 3S Mouse', 'Keychron K2 Mechanical Keyboard', 'OnePlus Buds 3 TWS'
   ],
   Beauty: [
     'L\'Oréal Paris Hyaluronic Acid Serum', 'Cetaphil Gentle Skin Cleanser', 'Nivea Soft Light Moisturiser', 'Lakmé Absolute Wet & Dry Foundation', 'Maybelline New York Fit Me Matte Poreless',
     'Sugar Cosmetics Matte Attack Lipstick', 'Neutrogena Hydro Boost Water Gel', 'The Derma Co 10% Niacinamide Serum', 'Plum Green Tea Pore Cleansing Face Wash', 'MCaffeine Naked & Raw Coffee Face Scrub',
-    'Minimalist 10% Vitamin C Face Serum', 'Biotique Morning Nectar Flawless Skin Lotion', 'Mamaearth Onion Hair Fall Control Oil', 'Tresemme Keratin Smooth Shampoo', 'Dove Intense Repair Conditioner',
-    'L\'Oréal Paris Total Repair 5 Hair Mask', 'WOW Skin Science Apple Cider Vinegar Wash', 'Garnier Skin Naturals Micellar Water', 'Kama Ayurveda Pure Rose Water', 'Forest Essentials Luxury Sugar Soap',
-    'Himalaya Herbals Purifying Neem Face Wash', 'Colorbar Velvet Matte Lipstick', 'Maybelline Lash Sensational Mascara', 'Faces Canada Magneteyes Eyeliner', 'Sugar Cosmetics Blend The Rules Eyeshadow'
+    'Minimalist 10% Vitamin C Face Serum', 'Mamaearth Onion Hair Fall Control Oil'
   ],
-  'Home & Kitchen': [
-    'Prestige Deluxe Pressure Cooker 3L', 'Philips Daily Collection Air Fryer', 'Wakefit Orthopaedic Memory Foam Mattress', 'Borosil Vision Glass Tumbler Set of 6', 'Milton Thermosteel Water Bottle 1L',
-    'Bajaj Rex 500W Mixer Grinder', 'Pigeon by Stovekraft 1.5L Electric Kettle', 'Wonderchef Nutri-blend Mixer Grinder', 'Kent 1600W Induction Cooktop', 'Solimo Non-Stick Cookware Set of 3',
-    'Hawkins Classic Aluminum Pressure Cooker', 'Eureka Forbes Trendy Zip Vacuum Cleaner', 'Philips Steam Iron 1440W', 'Cello H2O Stainless Steel Bottle Set', 'Kuber Industries 6-Piece Wardrobe Organiser',
-    'Sleepwell Dual Comfort Mattress', 'Godrej Aer Spray Home Air Freshener', 'Bosch 13 Place Settings Dishwasher', 'Morphy Richards 30L Convection Microwave', 'Samsung 28L Convection Microwave Oven',
-    'IFB 6kg Fully Automatic Washing Machine', 'Haier 258L Double Door Refrigerator', 'Crompton Solarium Care 15L Geyser', 'Havells Festiva 1200mm Ceiling Fan', 'USHA Shriram 3 Burner Gas Stove'
+  Home: [
+    'Wakefit Orthopaedic Memory Foam Mattress', 'Borosil Vision Glass Tumbler Set of 6', 'Milton Thermosteel Water Bottle 1L',
+    'Solimo Non-Stick Cookware Set of 3', 'Kuber Industries 6-Piece Wardrobe Organiser', 'Sleepwell Dual Comfort Mattress', 'Godrej Aer Spray Home Air Freshener'
+  ],
+  Appliances: [
+    'LG 8kg Front Load Washing Machine', 'Samsung 324L Double Door Refrigerator', 'Daikin 1.5 Ton 5 Star Inverter AC', 'Philips Digital Air Fryer XL',
+    'Bosch 13 Place Settings Dishwasher', 'IFB 30L Convection Microwave Oven', 'Prestige Deluxe Pressure Cooker 3L', 'Bajaj Rex 500W Mixer Grinder', 'Pigeon 1.5L Electric Kettle'
+  ],
+  'Toys, Baby & More': [
+    'LEGO Classic Bricks Building Set 790 Pcs', 'Pampers Baby Dry Diapers Pants XL', 'Giant Soft Plush Teddy Bear 4ft', 'Hot Wheels 10-Car Collector Pack',
+    'Chicco KeyFit 30 Infant Car Seat', 'Fisher-Price Kick & Play Piano Gym', 'Barbie Dreamhouse Playset'
+  ],
+  'Food & Health': [
+    'Optimum Nutrition Gold Standard Whey 2kg', 'Quaker Oats Whole Grain 1kg', 'Organic Tattva Raw Chia Seeds 250g', 'Fast&Up Charge Vitamin C 20 Tablets',
+    'Muscletech Nitrotech Protein Powder', 'Brooke Bond Red Label Tea 1kg', 'Aashirvaad Shudh Chakki Atta 10kg', 'Saffola Gold Cooking Oil 5L'
+  ],
+  'Auto Accessories': [
+    'Vega Off-Road Full Face Helmet', 'Bosch Universal Aquatak High Pressure Washer', '70mai Smart Dash Cam Pro Plus', 'TVS Racing Leather Riding Gloves',
+    'Autofy Anti-Theft Heavy Bike Lock', 'Solimo All-Weather Car Cover'
+  ],
+  'Sports & Fitness': [
+    'NIVIA Storm Football Size 5', 'Yonex Muscle Power 29 Badminton Racquet', 'MRF Genius Grand Edition Cricket Bat', 'Adrenex Heavy Duty Badminton Net',
+    'Boldfit Anti-Slip Yoga Mat 6mm', 'Cultsport Treadmill for Home Gym', 'Decathlon Dumbbells 10kg Set'
+  ],
+  Furniture: [
+    'Sleepyhead 3-Seater Fabric Sofa', 'Green Soul Ergonomic Gaming Office Chair', 'Solimo Solid Wood Study Table', 'Wakefit King Size Sheesham Wood Bed',
+    'DeckUp Plank Bookcase Cabinet'
+  ],
+  'Books & Stationery': [
+    'Atomic Habits by James Clear', 'Psychology of Money by Morgan Housel', 'Classmate Pulse Spiral Notebook 6-Pack', 'Parker Vector Stainless Steel Fountain Pen',
+    'Faber-Castell 48 Color Pencils Set', 'Rich Dad Poor Dad by Robert Kiyosaki'
+  ],
+  '2 Wheelers': [
+    'Ather 450X Electric Scooter', 'Ola S1 Pro Gen 2 EV Scooter', 'TVS iQube Electric Scooter', 'Hero Electric Optima CX EV', 'Royal Enfield Hunter 350 Access'
   ]
 };
 
 export const productImageMap = {
-'iPhone 15 Pro Max': 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&q=80',
-  'Samsung Galaxy S24 Ultra': 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80',
-  'Google Pixel 8 Pro': 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&q=80',
-  'OnePlus 12': 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80',
-  'Xiaomi 14 Ultra': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
-  'Vivo X100 Pro': 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&q=80',
-  'Nothing Phone (2)': 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&q=80',
-  'Motorola Edge 50 Pro': 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&q=80',
-  'Realme 12 Pro+': 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400&q=80',
-  'Poco X6 Pro': 'https://images.unsplash.com/photo-1523206489230-c012c64b2b48?w=400&q=80',
-  'Redmi Note 13 Pro': 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400&q=80',
-  'Samsung Galaxy A55': 'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=400&q=80',
-  'OnePlus Nord CE4': 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80',
-  'iPhone 15 Plus': 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400&q=80',
-  'Google Pixel 8a': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
-  'IQOO 12 5G': 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400&q=80',
-  'Oppo Reno 11 Pro': 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&q=80',
-  'Vivo V30 Pro': 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&q=80',
-  'Samsung Galaxy S23 FE': 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80',
-  'Motorola G84 5G': 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&q=80',
-  'Nothing Phone (2a)': 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80',
-  'Infinix Note 40 Pro': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
-  'Tecno Camon 30': 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400&q=80',
-  'iPhone 14 Pro': 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&q=80',
-  'Samsung Galaxy Fold 5': 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80',
-  'Nike Air Max Sneakers': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
-  'Adidas Ultraboost Running Shoes': 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400&q=80',
-  'Levi\'s 501 Original Jeans': 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&q=80',
-  'Zara Slim Fit Jacket': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80',
-  'H&M Classic Fleece Hoodie': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&q=80',
-  'Puma RS-X Retro Shoes': 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80',
-  'Roadster Casual Denim Shirt': 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80',
-  'U.S. Polo Assn. Polo T-Shirt': 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400&q=80',
-  'Jack & Jones Leather Jacket': 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=400&q=80',
-  'Allen Solly Formal Shirt': 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80',
-  'Woodland Waterproof Leather Boots': 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=400&q=80',
-  'Tommy Hilfiger Casual Blazer': 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&q=80',
-  'Vero Moda Women Floral Dress': 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80',
-  'Only Cotton Casual Top': 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&q=80',
-  'Fabindia Silk Kurta': 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&q=80',
-  'Biba Anarkali Suit Set': 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&q=80',
-  'W Cotton Straight Kurti': 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&q=80',
-  'Crocs Classic Clogs': 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80',
-  'Reebok Floatride Running Shoes': 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80',
-  'Asics Gel-Kayano Sneakers': 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=400&q=80',
-  'Skechers Go Walk Shoes': 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80',
-  'Peter England Formal Trousers': 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&q=80',
-  'Wrogn Slim Fit Jeans': 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&q=80',
-  'HRX Activewear Trackpants': 'https://images.unsplash.com/photo-1483721310020-03333e577078?w=400&q=80',
-  'Puma ESS Training Shorts': 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80',
-  'Sony WH-1000XM5 Headphones': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
-  'Apple AirPods Pro (2nd Gen)': 'https://images.unsplash.com/photo-1588449668365-d15e397f6787?w=400&q=80',
-  'Bose QuietComfort Ultra': 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80',
-  'JBL Flip 6 Bluetooth Speaker': 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&q=80',
-  'LG C3 55-inch OLED TV': 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=400&q=80',
-  'Apple iPad Pro 11-inch': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80',
-  'Samsung Galaxy Tab S9': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80',
-  'HP Pavilion 15 Laptop': 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&q=80',
-  'ASUS ROG Strix Gaming Laptop': 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&q=80',
-  'Apple MacBook Air M3': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80',
-  'Dell Inspiron 14 Thin Laptop': 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&q=80',
-  'Lenovo IdeaPad 3': 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400&q=80',
-  'Logitech MX Master 3S Mouse': 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400&q=80',
-  'Keychron K2 Mechanical Keyboard': 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&q=80',
-  'OnePlus Buds 3 TWS': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
-  'Boat Stone 1200 Speaker': 'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?w=400&q=80',
-  'Seagate 2TB External HDD': 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=400&q=80',
-  'Samsung 1TB Portable SSD': 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=400&q=80',
-  'Canon EOS R50 DSLR Camera': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80',
-  'GoPro Hero 12 Black': 'https://images.unsplash.com/photo-1503072181166-d28c4e6c1b3b?w=400&q=80',
-  'Sony Alpha 7 IV Camera': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80',
-  'TP-Link Deco Mesh WiFi Router': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80',
-  'Marshall Acton III Speaker': 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400&q=80',
-  'Sennheiser Accentum Headphones': 'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&q=80',
-  'Jabra Elite 4 Active Earbuds': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
-  'Tata Salt Lite 1kg': 'https://images.unsplash.com/photo-1604882737321-e6937fd6f519?w=400&q=80',
-  'Amul Butter 500g': 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&q=80',
-  'India Gate Basmati Rice 5kg': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
-  'Fortune Kachi Ghani Mustard Oil 1L': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80',
-  'Maggi 2-Minute Noodles 12-Pack': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80',
-  'Brooke Bond Red Label Tea 1kg': 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&q=80',
-  'Aashirvaad Shudh Chakki Atta 10kg': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
-  'Catch Turmeric Powder 200g': 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80',
-  'Everest Garam Masala 100g': 'https://images.unsplash.com/photo-1596003906949-67221c37965c?w=400&q=80',
-  'Kellogg\'s Corn Flakes 1.2kg': 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80',
-  'Saffola Gold Cooking Oil 5L': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80',
-  'Dabur Honey 500g': 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&q=80',
-  'Britannia Good Day Cookies 8-Pack': 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80',
-  'Parle-G Gluco Biscuits 800g': 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80',
-  'Nescafe Classic Instant Coffee 200g': 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&q=80',
-  'Surf Excel Easy Wash Detergent 5kg': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=80',
-  'Dettol Liquid Handwash 1.5L': 'https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=400&q=80',
-  'Colgate MaxFresh Toothpaste 300g': 'https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=400&q=80',
-  'Vim Dishwash Gel 2L': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=80',
-  'Lizol Floor Cleaner 2L': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=80',
-  'Harpic Disinfectant Toilet Cleaner 1L': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=80',
-  'Catch Coriander Powder 200g': 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80',
-  'Everest Kashmiri Chilli Powder 200g': 'https://images.unsplash.com/photo-1596003906949-67221c37965c?w=400&q=80',
-  'Tata Tea Gold 1kg': 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&q=80',
-  'Daawat Rozana Super Basmati Rice 5kg': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
-  'L\'Oréal Paris Hyaluronic Acid Serum': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'Cetaphil Gentle Skin Cleanser': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
-  'Nivea Soft Light Moisturiser': 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80',
-  'Lakmé Absolute Wet & Dry Foundation': 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
-  'Maybelline New York Fit Me Matte Poreless': 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
-  'Sugar Cosmetics Matte Attack Lipstick': 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&q=80',
-  'Neutrogena Hydro Boost Water Gel': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'The Derma Co 10% Niacinamide Serum': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'Plum Green Tea Pore Cleansing Face Wash': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
-  'MCaffeine Naked & Raw Coffee Face Scrub': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'Minimalist 10% Vitamin C Face Serum': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'Biotique Morning Nectar Flawless Skin Lotion': 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80',
-  'Mamaearth Onion Hair Fall Control Oil': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'Tresemme Keratin Smooth Shampoo': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
-  'Dove Intense Repair Conditioner': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
-  'L\'Oréal Paris Total Repair 5 Hair Mask': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
-  'WOW Skin Science Apple Cider Vinegar Wash': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
-  'Garnier Skin Naturals Micellar Water': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
-  'Kama Ayurveda Pure Rose Water': 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&q=80',
-  'Forest Essentials Luxury Sugar Soap': 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
-  'Himalaya Herbals Purifying Neem Face Wash': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
-  'Colorbar Velvet Matte Lipstick': 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&q=80',
-  'Maybelline Lash Sensational Mascara': 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
-  'Faces Canada Magneteyes Eyeliner': 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
-  'Sugar Cosmetics Blend The Rules Eyeshadow': 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
-  'Prestige Deluxe Pressure Cooker 3L': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
-  'Philips Daily Collection Air Fryer': 'https://images.unsplash.com/photo-1621972750749-0fbb1abb7736?w=400&q=80',
-  'Wakefit Orthopaedic Memory Foam Mattress': 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=80',
-  'Borosil Vision Glass Tumbler Set of 6': 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400&q=80',
-  'Milton Thermosteel Water Bottle 1L': 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&q=80',
-  'Bajaj Rex 500W Mixer Grinder': 'https://images.unsplash.com/photo-1578643463396-0997cb5328c1?w=400&q=80',
-  'Pigeon by Stovekraft 1.5L Electric Kettle': 'https://images.unsplash.com/photo-1595228702420-b3740f7f9761?w=400&q=80',
-  'Wonderchef Nutri-blend Mixer Grinder': 'https://images.unsplash.com/photo-1578643463396-0997cb5328c1?w=400&q=80',
-  'Kent 1600W Induction Cooktop': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
-  'Solimo Non-Stick Cookware Set of 3': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
-  'Hawkins Classic Aluminum Pressure Cooker': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
-  'Eureka Forbes Trendy Zip Vacuum Cleaner': 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400&q=80',
-  'Philips Steam Iron 1440W': 'https://images.unsplash.com/photo-1479064555552-3ef4979f8908?w=400&q=80',
-  'Cello H2O Stainless Steel Bottle Set': 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&q=80',
-  'Kuber Industries 6-Piece Wardrobe Organiser': 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?w=400&q=80',
-  'Sleepwell Dual Comfort Mattress': 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=80',
-  'Godrej Aer Spray Home Air Freshener': 'https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=400&q=80',
-  'Bosch 13 Place Settings Dishwasher': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&q=80',
-  'Morphy Richards 30L Convection Microwave': 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400&q=80',
-  'Samsung 28L Convection Microwave Oven': 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400&q=80',
-  'IFB 6kg Fully Automatic Washing Machine': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&q=80',
-  'Haier 258L Double Door Refrigerator': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
-  'Crompton Solarium Care 15L Geyser': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
-  'Havells Festiva 1200mm Ceiling Fan': 'https://images.unsplash.com/photo-1595228702420-b3740f7f9761?w=400&q=80',
-  'USHA Shriram 3 Burner Gas Stove': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=400&q=80',
+  // Snitch & Fashion
+  'Snitch Oversized Cuban Printed Shirt': 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&q=80',
+  'Snitch Slim Fit Cargo Trousers': 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80',
+  'Snitch Linen Casual Shirt': 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&q=80',
+  'Snitch Vintage Denim Jacket': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
+  'Nike Air Max Sneakers': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
+  'Adidas Ultraboost Running Shoes': 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&q=80',
+  "Levi's 501 Original Jeans": 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80',
+  'Zara Slim Fit Jacket': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
+  'H&M Classic Fleece Hoodie': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80',
+  'Puma RS-X Retro Shoes': 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80',
+
+  // Mobiles
+  'Samsung A36 5G': 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&q=80',
+  'vivo T5 Pro 5G': 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&q=80',
+  'iPhone 15 Pro Max': 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600&q=80',
+  'Samsung Galaxy S24 Ultra': 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&q=80',
+  'Google Pixel 8 Pro': 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&q=80',
+  'OnePlus 12': 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80',
+
+  // Electronics
+  'Sony WH-1000XM5 Headphones': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80',
+  'Apple AirPods Pro (2nd Gen)': 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=600&q=80',
+  'Apple MacBook Air M3': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80',
+
+  // Appliances
+  'LG 8kg Front Load Washing Machine': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&q=80',
+  'Samsung 324L Double Door Refrigerator': 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=600&q=80',
+  'Daikin 1.5 Ton 5 Star Inverter AC': 'https://images.unsplash.com/photo-1621972750749-0fbb1abb7736?w=600&q=80',
+  'Philips Digital Air Fryer XL': 'https://images.unsplash.com/photo-1621972750749-0fbb1abb7736?w=600&q=80',
+
+  // Toys & Baby
+  'LEGO Classic Bricks Building Set 790 Pcs': 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&q=80',
+  'Pampers Baby Dry Diapers Pants XL': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&q=80',
+  'Giant Soft Plush Teddy Bear 4ft': 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?w=600&q=80',
+  'Hot Wheels 10-Car Collector Pack': 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=600&q=80',
+
+  // Food & Health
+  'Optimum Nutrition Gold Standard Whey 2kg': 'https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=600&q=80',
+  'Quaker Oats Whole Grain 1kg': 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=600&q=80',
+  'Organic Tattva Raw Chia Seeds 250g': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=80',
+
+  // Auto Accessories
+  'Vega Off-Road Full Face Helmet': 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&q=80',
+  'Bosch Universal Aquatak High Pressure Washer': 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80',
+  '70mai Smart Dash Cam Pro Plus': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80',
+
+  // Sports & Fitness
+  'NIVIA Storm Football Size 5': 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=600&q=80',
+  'Yonex Muscle Power 29 Badminton Racquet': 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80',
+  'MRF Genius Grand Edition Cricket Bat': 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600&q=80',
+  'Adrenex Heavy Duty Badminton Net': 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80',
+  'Boldfit Anti-Slip Yoga Mat 6mm': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
+
+  // Furniture
+  'Sleepyhead 3-Seater Fabric Sofa': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
+  'Green Soul Ergonomic Gaming Office Chair': 'https://images.unsplash.com/photo-1580481072645-022f9a6d1209?w=600&q=80',
+  'Solimo Solid Wood Study Table': 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600&q=80',
+
+  // Books & Stationery
+  'Atomic Habits by James Clear': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&q=80',
+  'Psychology of Money by Morgan Housel': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&q=80',
+  'Classmate Pulse Spiral Notebook 6-Pack': 'https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?w=600&q=80',
+  'Parker Vector Stainless Steel Fountain Pen': 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&q=80',
+
+  // 2 Wheelers
+  'Ather 450X Electric Scooter': 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=80',
+  'Ola S1 Pro Gen 2 EV Scooter': 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600&q=80',
+  'TVS iQube Electric Scooter': 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&q=80',
+
+  // Vegetables
   'Carrot': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&q=80',
   'Potato': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&q=80',
   'Tomato': 'https://images.unsplash.com/photo-1595855759920-86582396756a?w=400&q=80',
@@ -256,30 +207,33 @@ export const productImageMap = {
 const products = [];
 let idCounter = 1;
 
-for (const cat of categoriesList.slice(1, -1)) {
-  const names = productNames[cat] || productNames['Electronics'];
-  // Generate 25 items per category to achieve 150+ products total
-  for (let i = 0; i < 25; i++) {
-    const name = names[i % names.length];
+for (const cat of Object.keys(productNames)) {
+  const names = productNames[cat];
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i];
     let basePrice;
-    if (cat === 'Mobiles') basePrice = 12000 + i * 4000;
-    else if (cat === 'Fashion') basePrice = 500 + i * 200;
-    else if (cat === 'Electronics') basePrice = 1500 + i * 1500;
-    else if (cat === 'Grocery') basePrice = 30 + i * 35;
-    else if (cat === 'Beauty') basePrice = 200 + i * 80;
-    else basePrice = 400 + i * 400;
+    if (cat === 'Mobiles') basePrice = 14000 + i * 5000;
+    else if (cat === 'Fashion') basePrice = 699 + i * 350;
+    else if (cat === 'Electronics') basePrice = 2499 + i * 2000;
+    else if (cat === 'Beauty') basePrice = 299 + i * 120;
+    else if (cat === 'Appliances') basePrice = 4999 + i * 3500;
+    else if (cat === 'Sports & Fitness') basePrice = 799 + i * 650;
+    else if (cat === 'Auto Accessories') basePrice = 899 + i * 1200;
+    else if (cat === 'Toys, Baby & More') basePrice = 499 + i * 600;
+    else if (cat === 'Furniture') basePrice = 3499 + i * 2500;
+    else if (cat === 'Books & Stationery') basePrice = 299 + i * 150;
+    else if (cat === '2 Wheelers') basePrice = 84999 + i * 15000;
+    else basePrice = 399 + i * 300;
 
-    // Introduce variety in name if repeated to make them unique
-    const uniqueName = i >= names.length ? `${name} (V${Math.floor(i / names.length) + 1})` : name;
-
-    const catOffset = cat === 'Mobiles' ? 5 : cat === 'Fashion' ? 15 : cat === 'Electronics' ? 10 : cat === 'Grocery' ? 8 : cat === 'Beauty' ? 12 : 9;
-    const itemVariance = (i * 7 + catOffset * 3) % 45; // 0 to 44
-    const markupPercent = 0.15 + itemVariance / 100; // 15% to 59% original markup
+    const catOffset = cat.length;
+    const itemVariance = (i * 7 + catOffset * 3) % 45;
+    const markupPercent = 0.15 + itemVariance / 100;
     const oldPrice = Math.round(basePrice * (1 + markupPercent));
-    const rating = 3.8 + (i % 13) / 10;
-    const reviews = 150 + i * 180;
-    const delivery = cat === 'Grocery' ? '10 mins' : '1-2 days';
-    const offers = ['No Cost EMI Available', 'Partner Bank Offer'];
+    const rating = parseFloat((4.0 + (i % 10) / 10).toFixed(1));
+    const reviews = 150 + i * 240;
+    const delivery = (cat === 'Food & Health' || cat === 'Beauty') ? '10 mins' : '1-2 days';
+    const offers = ['SBI Card 10% Instant Discount', 'Partner Bank No Cost EMI'];
+
     const compare = {};
     const platformKeys = Object.keys(PLATFORMS);
     const bestPlatform = platformKeys[(i + catOffset) % platformKeys.length];
@@ -290,6 +244,7 @@ for (const cat of categoriesList.slice(1, -1)) {
       compare[platform] = Math.round(basePrice * (1 - platformDiscount));
     }
     const bestPrice = Math.min(...Object.values(compare));
+
     const priceHistory = [];
     const today = new Date();
     let current = basePrice;
@@ -311,11 +266,26 @@ for (const cat of categoriesList.slice(1, -1)) {
     const discount = `${discountPercent}% OFF`;
     let dealScore = Math.min(1, Math.max(0, (discountPercent / 100) * 0.5 + compAdvantage * 0.3 + (bestPrice < avgPrice ? 0.2 : 0)));
     const isGoodTime = dealScore > 0.6;
+
     products.push({
-      id: idCounter++, category: cat, name: uniqueName, desc: 'Premium quality product • Selected Seller Choice',
-      price: bestPrice, oldPrice, rating, reviews, delivery, discount, offers, compare,
-      image: productImageMap[name] || 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?w=400&q=80',
-      priceHistory, avgPrice, lowestPrice, highestPrice, dealScore,
+      id: idCounter++,
+      category: cat,
+      name,
+      desc: 'Premium original product • Verified Brand Warranty',
+      price: bestPrice,
+      oldPrice,
+      rating,
+      reviews,
+      delivery,
+      discount,
+      offers,
+      compare,
+      image: productImageMap[name] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
+      priceHistory,
+      avgPrice,
+      lowestPrice,
+      highestPrice,
+      dealScore,
       buyRecommendation: isGoodTime ? 'Go Ahead & Buy now' : 'Wait for better price',
       recommendationSub: isGoodTime ? 'Optimal price point' : 'Price may drop further',
       isGoodTime
@@ -325,13 +295,13 @@ for (const cat of categoriesList.slice(1, -1)) {
 
 for (const veg of vegetablesList) {
   const { price, oldPrice } = veg;
-  const rating = 4 + Math.random() * 0.8;
+  const rating = parseFloat((4.1 + Math.random() * 0.8).toFixed(1));
   const reviews = Math.floor(Math.random() * 2000) + 120;
   const compare = {};
   const platformKeys = Object.keys(PLATFORMS);
   const bestPlatform = platformKeys[Math.floor(Math.random() * platformKeys.length)];
   for (const platform of platformKeys) {
-    compare[platform] = platform === bestPlatform ? Math.round(price * 0.9) : Math.round(price * (0.92 + Math.random() * 0.2));
+    compare[platform] = platform === bestPlatform ? Math.round(price * 0.88) : Math.round(price * (0.92 + Math.random() * 0.15));
   }
   const bestPrice = Math.min(...Object.values(compare));
   const discountPercent = Math.round((oldPrice - bestPrice) / oldPrice * 100);
@@ -351,15 +321,25 @@ for (const veg of vegetablesList) {
   let dealScore = Math.min(1, Math.max(0, (discountPercent / 100) * 0.5 + ((avgComp - bestPrice) / avgComp) * 0.3 + (bestPrice < avgPrice ? 0.2 : 0)));
   const isGoodTime = dealScore > 0.6;
   products.push({
-    id: idCounter++, category: 'Vegetables',
+    id: idCounter++,
+    category: 'Vegetables',
     name: `${veg.en} (${veg.hi} / ${veg.kn})`,
     desc: `${veg.desc} | हिंदी: ${veg.hi} | ಕನ್ನಡ: ${veg.kn}`,
-    price: bestPrice, oldPrice, rating, reviews, delivery: '10 mins - 1 day',
-    discount: `${discountPercent}% OFF`, offers: ['Fresh Stock Daily', 'Free Delivery Available'],
-    compare, image: productImageMap[veg.en] || 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&q=80',
-    priceHistory, avgPrice,
-    lowestPrice: Math.min(...pricesOnly), highestPrice: Math.max(...pricesOnly),
-    dealScore, buyRecommendation: isGoodTime ? 'Go Ahead & Buy now' : 'Wait for better price',
+    price: bestPrice,
+    oldPrice,
+    rating,
+    reviews,
+    delivery: '10 mins - 1 day',
+    discount: `${discountPercent}% OFF`,
+    offers: ['Fresh Stock Daily', 'Free Delivery Available'],
+    compare,
+    image: productImageMap[veg.en] || 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&q=80',
+    priceHistory,
+    avgPrice,
+    lowestPrice: Math.min(...pricesOnly),
+    highestPrice: Math.max(...pricesOnly),
+    dealScore,
+    buyRecommendation: isGoodTime ? 'Go Ahead & Buy now' : 'Wait for better price',
     recommendationSub: isGoodTime ? 'Optimal price point' : 'Price may drop further',
     isGoodTime
   });
@@ -368,7 +348,7 @@ for (const veg of vegetablesList) {
 export const demoOrders = [
   { id: 'BM2024001', name: 'iPhone 15 Pro Max', date: 'Jun 18, 2026', status: 'delivered', amount: 134900, image: productImageMap['iPhone 15 Pro Max'], steps: [{ label: 'Order Placed', desc: 'Jun 18, 2:30 PM', done: true }, { label: 'Confirmed', desc: 'Jun 18, 3:00 PM', done: true }, { label: 'Shipped', desc: 'Jun 19, 10:00 AM', done: true }, { label: 'Out for Delivery', desc: 'Jun 20, 9:00 AM', done: true }, { label: 'Delivered', desc: 'Jun 20, 2:45 PM', done: true }] },
   { id: 'BM2024002', name: 'Sony WH-1000XM5 Headphones', date: 'Jun 20, 2026', status: 'shipped', amount: 24990, image: productImageMap['Sony WH-1000XM5 Headphones'], steps: [{ label: 'Order Placed', desc: 'Jun 20, 11:00 AM', done: true }, { label: 'Confirmed', desc: 'Jun 20, 11:30 AM', done: true }, { label: 'Shipped', desc: 'Jun 21, 8:00 AM', done: true }, { label: 'Out for Delivery', desc: 'Expected Jun 22', done: false }, { label: 'Delivered', desc: 'Expected Jun 22', done: false }] },
-  { id: 'BM2024003', name: 'Nike Air Max Sneakers', date: 'Jun 21, 2026', status: 'processing', amount: 12995, image: productImageMap['Nike Air Max Sneakers'], steps: [{ label: 'Order Placed', desc: 'Jun 21, 9:00 AM', done: true }, { label: 'Confirmed', desc: 'Jun 21, 9:30 AM', done: true }, { label: 'Shipped', desc: 'Expected Jun 22', done: false }, { label: 'Out for Delivery', desc: 'Expected Jun 23', done: false }, { label: 'Delivered', desc: 'Expected Jun 23', done: false }] },
+  { id: 'BM2024003', name: 'Nike Air Max Sneakers', date: 'Jun 21, 2026', status: 'processing', amount: 12995, image: productImageMap['Nike Air Max Sneakers'], steps: [{ label: 'Order Placed', desc: 'Jun 21, 9:00 AM', done: true }, { label: 'Confirmed', desc: 'Jun 21, 9:30 AM', done: true }, { label: 'Shipped', desc: 'Expected Jun 22', done: false }, { label: 'Out for Delivery', desc: 'Expected Jun 23', done: false }, { label: 'Delivered', desc: 'Expected Jun 23', done: false }] }
 ];
 
 export default products;

@@ -1,27 +1,17 @@
-import Hero from '../components/Hero';
+import CategoryBar from '../components/CategoryBar';
+import BannerCarousel from '../components/BannerCarousel';
 import ProductCard from '../components/ProductCard';
 import Footer from '../components/Footer';
 import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import products, { categoriesList } from '../data/products';
+import products from '../data/products';
 
 export default function HomePage() {
-  const { selectedCategory, setSelectedCategory, search } = useApp();
+  const { selectedCategory, search } = useApp();
   const { t } = useLanguage();
-  
-  const categoryIcons = { 
-    All: "🛒", 
-    Mobiles: "📱", 
-    Fashion: "👗", 
-    Electronics: "🎧", 
-    Grocery: "🛒", 
-    Beauty: "💄", 
-    "Home & Kitchen": "🏠", 
-    Vegetables: "🥦" 
-  };
 
   const filtered = products.filter(p => {
-    const matchCat = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchCat = selectedCategory === 'All' || selectedCategory === 'For You' || p.category === selectedCategory;
     const matchSearch = !search || 
       p.name.toLowerCase().includes(search.toLowerCase()) || 
       p.category.toLowerCase().includes(search.toLowerCase());
@@ -30,31 +20,15 @@ export default function HomePage() {
 
   return (
     <>
-      <Hero />
-      <div className="categories">
-        <div className="section-header">
-          <h2 className="section-title">{t('categories')}</h2>
-        </div>
-        <div className="category-grid">
-          {categoriesList.map(cat => (
-            <div 
-              key={cat} 
-              className={`category-card ${selectedCategory === cat ? "active" : ""}`} 
-              onClick={() => setSelectedCategory(cat)}
-            >
-              <div className="category-icon">{categoryIcons[cat] || "🛒"}</div>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{cat}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
+      <CategoryBar />
+      <BannerCarousel />
+
       <div className="products">
         <div className="section-header">
           <h2 className="section-title">
-            {search ? `Results for "${search}"` : selectedCategory === "All" ? t('trending') : selectedCategory}
+            {search ? `Results for "${search}"` : (selectedCategory === 'All' || selectedCategory === 'For You') ? 'Top Deals & Trending Products 🔥' : selectedCategory}
           </h2>
-          <span style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600 }}>{filtered.length} products</span>
+          <span style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600 }}>{filtered.length} products available</span>
         </div>
         
         {filtered.length === 0 ? (
