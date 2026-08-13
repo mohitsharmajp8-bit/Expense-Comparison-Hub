@@ -323,7 +323,7 @@ for (const veg of vegetablesList) {
   products.push({
     id: idCounter++,
     category: 'Vegetables',
-    name: veg.en,
+    name: `${veg.en} (${veg.hi} / ${veg.kn})`,
     desc: `${veg.desc} • Fresh Farm Quality`,
     price: bestPrice,
     oldPrice,

@@ -389,7 +389,7 @@ const pool = mysql.createPool({
       for (const veg of seedVegetablesList) {
         const rating = 4 + Math.random() * 0.8;
         const reviews = Math.floor(Math.random() * 2000) + 120;
-        const name = veg.en;
+        const name = `${veg.en} (${veg.hi} / ${veg.kn})`;
         const desc = `${veg.desc} • Fresh Farm Quality`;
         const img = seedProductImageMap[veg.en] || 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&q=80';
 
