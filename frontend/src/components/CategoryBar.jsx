@@ -1,26 +1,9 @@
 import { useApp } from '../contexts/AppContext';
 import { categoriesList } from '../data/products';
+import { category3DIconMap } from './CategoryIcons3D';
 
 export default function CategoryBar() {
   const { selectedCategory, setSelectedCategory } = useApp();
-
-  const categoryIcons = {
-    'For You': '🛍️',
-    'Fashion': '👕',
-    'Mobiles': '📱',
-    'Electronics': '💻',
-    'Beauty': '💄',
-    'Home': '🛋️',
-    'Appliances': '📺',
-    'Toys, Baby & More': '🧸',
-    'Food & Health': '🥣',
-    'Auto Accessories': '🏍️',
-    'Sports & Fitness': '🏏',
-    'Furniture': '🪑',
-    'Books & Stationery': '📚',
-    '2 Wheelers': '🛵',
-    'Vegetables': '🥦'
-  };
 
   return (
     <div className="category-bar-wrapper">
@@ -33,7 +16,9 @@ export default function CategoryBar() {
               className={`category-nav-item ${isActive ? 'active' : ''}`}
               onClick={() => setSelectedCategory(cat === 'For You' ? 'All' : cat)}
             >
-              <div className="category-nav-icon">{categoryIcons[cat] || '🛒'}</div>
+              <div className="category-nav-icon-container">
+                {category3DIconMap[cat] || category3DIconMap['For You']}
+              </div>
               <div className="category-nav-label">{cat}</div>
               {isActive && <div className="category-active-indicator" />}
             </div>
