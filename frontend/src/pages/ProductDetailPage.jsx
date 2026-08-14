@@ -8,6 +8,8 @@ import PriceAnalysis from '../components/PriceAnalysis';
 import PlatformCompare from '../components/PlatformCompare';
 import PriceDropAlertModal from '../components/PriceDropAlertModal';
 
+import ProductImageGallery from '../components/ProductImageGallery';
+
 export default function ProductDetailPage() {
   const { id } = useParams();
   const product = products.find(p => p.id === parseInt(id));
@@ -49,18 +51,7 @@ export default function ProductDetailPage() {
       
       <div className="product-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 36, alignItems: 'start' }}>
         <div>
-          <div className="product-detail-img-wrap">
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              style={{ width: '100%', borderRadius: 24, objectFit: 'cover', height: 420 }} 
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f1f5f9"/><rect x="10" y="10" width="180" height="180" rx="12" fill="%23e2e8f0" stroke="%23cbd5e1" stroke-width="1.5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="%2394a3b8">BharatMart</text></svg>';
-              }}
-            />
-            <div className="discount-badge" style={{ fontSize: 14, padding: '8px 16px' }}>{product.discount}</div>
-          </div>
+          <ProductImageGallery product={product} />
         </div>
 
         <div>
