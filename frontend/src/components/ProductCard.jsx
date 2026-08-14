@@ -46,10 +46,9 @@ export default function ProductCard({ product }) {
             loading="lazy" 
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="400" height="400" fill="%23ffffff"/><rect x="15" y="15" width="370" height="370" rx="16" fill="%23f8fafc" stroke="%23e2e8f0" stroke-width="1.5"/><circle cx="200" cy="160" r="40" fill="%23dbeafe"/><path d="M200 135 L213 155 L235 158 L218 172 L223 194 L200 182 L177 194 L182 172 L165 158 L187 155 Z" fill="%232563eb"/><text x="50%" y="240" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="15" fill="%231e293b">${encodeURIComponent(product.name)}</text><text x="50%" y="270" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="12" fill="%2316a34a">✓ Verified Real Product</text><text x="50%" y="295" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="10" fill="%2394a3b8">Real image updating soon from ${encodeURIComponent(brandName)}</text></svg>`;
+              e.target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="400" height="400" fill="%23ffffff"/><rect x="15" y="15" width="370" height="370" rx="16" fill="%23f8fafc" stroke="%23e2e8f0" stroke-width="1.5"/><circle cx="200" cy="160" r="40" fill="%23dbeafe"/><path d="M200 135 L213 155 L235 158 L218 172 L223 194 L200 182 L177 194 L182 172 L165 158 L187 155 Z" fill="%232563eb"/><text x="50%" y="240" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="15" fill="%231e293b">${encodeURIComponent(product.name)}</text><text x="50%" y="280" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="11" fill="%2394a3b8">Image updating soon from ${encodeURIComponent(brandName)}</text></svg>`;
             }}
           />
-          <div className="verified-card-pill">✓ Verified Real</div>
           <div className="discount-badge">{product.discount}</div>
           <div className="delivery-badge">🚀 {product.delivery}</div>
         </div>

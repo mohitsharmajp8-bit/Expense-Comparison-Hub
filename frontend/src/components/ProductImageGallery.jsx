@@ -21,7 +21,7 @@ export default function ProductImageGallery({ product }) {
   const brandName = product.brand || product.name.split(' ')[0];
 
   // SVG Branded Fallback
-  const fallbackSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="%23ffffff"/><rect x="20" y="20" width="560" height="560" rx="24" fill="%23f8fafc" stroke="%23e2e8f0" stroke-width="2"/><circle cx="300" cy="240" r="60" fill="%23dbeafe"/><path d="M300 200 L320 230 L350 235 L328 256 L333 285 L300 270 L267 285 L272 256 L250 235 L280 230 Z" fill="%232563eb"/><text x="50%" y="360" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="20" fill="%231e293b">${encodeURIComponent(product.name)}</text><text x="50%" y="400" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="14" fill="%2316a34a">✓ Verified Real Product</text><text x="50%" y="430" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="12" fill="%2394a3b8">Real image updating soon from ${encodeURIComponent(brandName)}</text></svg>`;
+  const fallbackSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="%23ffffff"/><rect x="20" y="20" width="560" height="560" rx="24" fill="%23f8fafc" stroke="%23e2e8f0" stroke-width="2"/><circle cx="300" cy="240" r="60" fill="%23dbeafe"/><path d="M300 200 L320 230 L350 235 L328 256 L333 285 L300 270 L267 285 L272 256 L250 235 L280 230 Z" fill="%232563eb"/><text x="50%" y="370" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="20" fill="%231e293b">${encodeURIComponent(product.name)}</text><text x="50%" y="410" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="14" fill="%2394a3b8">Image updating soon from ${encodeURIComponent(brandName)}</text></svg>`;
 
   // Mouse move handler for hover zoom
   const handleMouseMove = (e) => {
@@ -70,11 +70,6 @@ export default function ProductImageGallery({ product }) {
         {/* Hover Zoom Lens Layer */}
         <div className="hover-zoom-lens" style={zoomStyle} />
 
-        {/* Verified Real Image Badge */}
-        <div className="verified-real-badge">
-          <ShieldCheck size={14} /> Verified Real Image
-        </div>
-
         {/* Image Source Attribution */}
         <div className="image-source-tag">
           Source: Official {brandName} Catalog
@@ -110,8 +105,8 @@ export default function ProductImageGallery({ product }) {
             <div className="lightbox-header">
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: 'white' }}>{product.name}</div>
-                <div style={{ fontSize: 12, color: '#4ade80', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <ShieldCheck size={14} /> Verified Authentic Photography ({activeIndex + 1} / {alternateImages.length})
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                  Image ({activeIndex + 1} of {alternateImages.length})
                 </div>
               </div>
               <button className="lightbox-close-btn" onClick={() => setIsLightboxOpen(false)}>
