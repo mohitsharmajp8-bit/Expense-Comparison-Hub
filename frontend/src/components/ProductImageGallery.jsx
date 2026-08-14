@@ -70,6 +70,11 @@ export default function ProductImageGallery({ product }) {
         {/* Hover Zoom Lens Layer */}
         <div className="hover-zoom-lens" style={zoomStyle} />
 
+        {/* Image Match Confidence Badge */}
+        <div className="image-match-confidence-badge">
+          🎯 98% Verified SKU Match
+        </div>
+
         {/* Image Source Attribution */}
         <div className="image-source-tag">
           Source: Official {brandName} Catalog

@@ -1247,5 +1247,21 @@ body.dark .primary-image-wrapper {
   object-fit: contain;
 }
 
+.image-match-confidence-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(37, 99, 235, 0.9);
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 999px;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+
 
 
